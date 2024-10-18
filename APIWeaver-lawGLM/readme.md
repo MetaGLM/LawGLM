@@ -5,9 +5,9 @@ lawGLM复赛第五方案 [比赛网址](https://tianchi.aliyun.com/competition/e
 如果需要简单了解此方案，可以查看[此教程](./app/simple_demo.ipynb)
 
 其他链接：
-SMP-2024大模型图分析挑战赛top3方案，[开源地址](https://tianchi.aliyun.com/competition/entrance/532221/rankingList)
+SMP-2024大模型图分析挑战赛top3方案，[开源地址](https://github.com/MeiPixel/APIWeaver-Graph)
 
-后续优化： [APIWeaver](https://tianchi.aliyun.com/competition/entrance/532221/rankingList)
+后续优化： [APIWeaver](https://github.com/MeiPixel/APIWeaver)
 
 
 # 方案具体介绍
