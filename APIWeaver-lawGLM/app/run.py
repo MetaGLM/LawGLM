@@ -20,7 +20,7 @@ def main():
 
 
 if __name__ == "__main__":
-    # import json
+
     with open(RESULT, "w", encoding="utf8") as fw:
         pass
     with open(PATH, encoding="utf8") as f:
@@ -34,7 +34,9 @@ if __name__ == "__main__":
     import time
 
     time.sleep(1)
+
     print(results)
+    
     if len(results) == 200:
         print("开始写入...")
         with open(RESULT, "w", encoding="utf8") as fw:

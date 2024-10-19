@@ -168,7 +168,6 @@ class CodeKernel:
         return shell_msg
 
     def inspect(self, code, verbose=False):
-        msg_id = self.kernel.inspect(code)
         shell_msg = self.kernel.get_shell_msg(timeout=30)
         if shell_msg is queue.Empty:
             if verbose:
@@ -226,13 +225,13 @@ def run_code(python_str, code_kernel, iscode=False):
 
     if match:
         python_str_run = match.group(1)
-        python_str_run = re.sub("-> (str|list|dict|int|float)\s*\n", "\n", python_str_run)
+        python_str_run = re.sub(r"-> (str|list|dict|int|float)\s*\n", "\n", python_str_run)
 
         if (
             "<safe>" not in python_str
             and "假设" in python_str_run
             or "..." in python_str
-            or re.search("\[.*# .* \.\.\..*]", python_str, re.DOTALL)
+            or re.search(r"\[.*# .* \.\.\..*]", python_str, re.DOTALL)
         ):
             return f"Traceback:拒绝运行代码，因怀疑其中含有假设数据,之前的代码为：```python\n{code_kernel.cache_code}\n```\n怀疑有假设变量的代码为：{python_str_run},请重新编码，不要使用假设数据"
 

@@ -124,7 +124,7 @@ ERROR_TIPS = [
     },
     {
         "pos_route": "ALL",
-        "pattern": "(?<!\d)\d{7,12}(?!\d)",
+        "pattern": r"(?<!\d)\d{7,12}(?!\d)",
         "use_field": ["requirement", "param"],
         "content": "如果与公司相关，可能是错误的公司代码，建议检查有没有重复数字，推荐转成6位数字转成公司代码，使用for [所有的可能（一般300 600开头）] 找到正确的",
     },

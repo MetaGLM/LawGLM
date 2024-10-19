@@ -39,7 +39,7 @@ def check_suggestion(suggestion):
         if interface not in API_DICT:
             return f"{interface} 路由不存在，如果你使用的是推荐的函数，请不要使用路由格式，直接说 使用函数：function_name,传入参数xxx"
 
-        param = re.split("参数.{0,2}\{", suggestion)
+        param = re.split(r"参数.{0,2}\{", suggestion)
         if len(param) == 2:
             api_info = API_DICT[interface]
             end_inx = 0
@@ -50,8 +50,7 @@ def check_suggestion(suggestion):
                 param = eval(string2eval("{" + param[1][:end_inx] + "}"))
                 return validate_params(interface, param, api_info)
             except:
-                # print(string2eval('{' + param[1][:end_inx] + '}'))
-                # print(f'`{suggestion}`无法校验')
+
                 return ""
     return suggestion_back.strip()
 
