@@ -4,7 +4,7 @@
 
 本仓库是关于2024年琶洲算法大赛的开源代码汇总， 旨在探索大语言模型在法律行业的应用潜力。
 
-+ 比赛链接和介绍: https://www.aicompetition-pz.com
++ 比赛链接和介绍: https://www.aicompetition-pz.com/topic_detail/13
 + 技术： 参赛选手们使用了 Function Call，RAG，长文本等多项技术，让大模型在法律领域发挥了更大的作用。
 + 模型： 灵活使用 `GLM-4-Air`，`GLM-4-AirX`，`GLM-4-Plus`，`GLM-4-Flash` 等多种 GLM API系列模型。
 
@@ -13,7 +13,8 @@
 ## 队伍代码
 
 + [APIWeaver](APIWeaver-lawGLM/README.md): 由 [MeiPixel](https://github.com/MeiPixel) 贡献。
-支持文档召回, 通过大模型对话式优化prompt, 运行记录转化为llama factory训练格式 ,一键部署gradio等多样功能。
+  支持文档召回, 通过大模型对话式优化prompt, 运行记录转化为llama factory训练格式 ,一键部署gradio等多样功能。
++ [Vinlic](Vinlic-lawGLM/README.md): 由 [Vinlic](https://github.com/Vinlic) 贡献。
 
 ## 贡献指南
 
