@@ -2,14 +2,13 @@
 
 lawGLM复赛第五方案 [比赛网址](https://tianchi.aliyun.com/competition/entrance/532221/rankingList)。
 
-后续更新可能需要切换分支 - [tangtang](https://github.com/MetaGLM/LawGLM/tree/tangtang)
-
 如果需要简单了解此方案，可以查看[此教程](./app/simple_demo.ipynb)
 
 其他链接：
+
 SMP-2024大模型图分析挑战赛top3方案，[开源地址](https://github.com/MeiPixel/APIWeaver-Graph)
 
-完整版开源（刚建文件夹状态）： [APIWeaver](https://github.com/MeiPixel/APIWeaver)
+完整版开源： [APIWeaver](https://github.com/MeiPixel/APIWeaver)
 
 - 支持文档召回
 - 支持通过大模型对话式优化prompt
