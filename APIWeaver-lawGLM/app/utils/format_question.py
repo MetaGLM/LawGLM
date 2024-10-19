@@ -2,10 +2,11 @@ import json
 import re
 from Agent.llm import llm
 
+
 def format_question(question):
-    content = [i for i in re.split('[，,。.?？]',question) if i]
-    if len(content)>4:
-        prompt = '''
+    content = [i for i in re.split("[，,。.?？]", question) if i]
+    if len(content) > 4:
+        prompt = """
 你的任务是做用户的意图识别，如果用户的意图很明显，信息含量很高，不用做任何改变。
 你在改写的过程中，要保留用户给出的关键信息和专业术语，这些关键信息包括：
 1.意图中的公司名称，年份，法院名称，案号，日期等实体信息。
@@ -48,8 +49,8 @@ def format_question(question):
 我想知道双方在此类案由上的其他交锋情况，请详叙其他案件的裁决结果，以及在这些案件上裁决结果里提到的所有案件受理费用总和。（有效信息为用户需求）
 无无用信息返回原题：泰山小（化名）与一公司在19-20年有着多起民事纠纷。19年该公司状告泰山小，被江西省吉安市中级人民法院驳回，该案为19年该院的民初50号案，我想知道双方在此类案由上的其他交锋情况，请详叙其他案件的裁决结果，以及在这些案件上裁决结果里提到的所有案件受理费用总和。
 
-如果题目已经接近标准，不要做任何改变。仅仅输出修改后的题目。'''
-        messages = [{'role': 'system', 'content': prompt}, {'role': 'user', 'content': question+'请仅输出题目：'}]
+如果题目已经接近标准，不要做任何改变。仅仅输出修改后的题目。"""
+        messages = [{"role": "system", "content": prompt}, {"role": "user", "content": question + "请仅输出题目："}]
         questions = llm(messages)
         return questions
     return question

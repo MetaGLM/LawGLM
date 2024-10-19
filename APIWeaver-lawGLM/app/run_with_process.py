@@ -17,21 +17,21 @@ file_lock = Lock()
 
 
 def add_message_log(messages, success=1):
-    with open('log/message.jsonl', 'a', encoding='utf8') as f:
+    with open("log/message.jsonl", "a", encoding="utf8") as f:
         if success:
-            f.write('执行成功:' + json.dumps(messages, ensure_ascii=False))
+            f.write("执行成功:" + json.dumps(messages, ensure_ascii=False))
         else:
-            f.write('执行失败:' + json.dumps(messages, ensure_ascii=False))
-        f.write('\n')
+            f.write("执行失败:" + json.dumps(messages, ensure_ascii=False))
+        f.write("\n")
 
 
 def get_question(question, ner):
     res = preprocess_question(question, ner)
-    if res['type'] == '任务完成':
-        return question, format_history(res['history']), True
-    if len(ner['实体']) == len(res['history']):
-        return question, '', False
-    prompt = '''
+    if res["type"] == "任务完成":
+        return question, format_history(res["history"]), True
+    if len(ner["实体"]) == len(res["history"]):
+        return question, "", False
+    prompt = """
 你会基于我给你的运行结果去提出新的问题。
 
 以下是几个回答示例，解答完整参考此示例：
@@ -90,31 +90,34 @@ def get_question(question, ner):
 请注意你的提问一定要完整,如果有新的已知条件，要在题目后面备注，但是不要自己猜测，例如知道法院代字，则在法院后面加上（法院代字为：xxx）.
 对于统一社会信用代码和公司简称以及母公司，你可以推测主语，从而省略部分主语，不要做任何地点的推断，问题中必须包含完整的实体不要有任何指代。
 你一定要使用我给你的已知条件里的字段，不要添加任何推理（替换公司简称和统一社会信用代码以及母公司除外），字段使用 `` 注明,如果没有任何有用信息，请一字不差的返回原问题。
-'''
-    answer = format_history(res['history'])
-    question_flow = [{'role': 'system', 'content': prompt}]
-    question_flow.append({
-        'role': 'user', 'content': f'''问题为：{question}，解答步骤为：{answer}。
-你的回答：'''
-    })
+"""
+    answer = format_history(res["history"])
+    question_flow = [{"role": "system", "content": prompt}]
+    question_flow.append(
+        {
+            "role": "user",
+            "content": f"""问题为：{question}，解答步骤为：{answer}。
+你的回答：""",
+        }
+    )
     resp = llm(question_flow)
-    return resp.split('问题', 1)[-1].lstrip('：').split('\n')[0], answer, False
+    return resp.split("问题", 1)[-1].lstrip("：").split("\n")[0], answer, False
 
 
 def coder(question, check_api):
-    log_all = ''
+    log_all = ""
     planer = Planer(question)
     executor = Executor(question, planer.flow, max_try_num=3)
     step_prompt = planer.get_next_step()
     while True:
         res = executor.handle_one_step(step_prompt)
-        if 'error_log' in res:
+        if "error_log" in res:
             return log_all + executor.qa_content, False, False
         else:
             step_prompt = planer.get_next_step()
         if step_prompt is None:
             break
-    add_message_log({'question': question, 'message': executor.messages})
+    add_message_log({"question": question, "message": executor.messages})
 
     executor.code_kernel.shutdown()
     if executor.err_num > 3:
@@ -139,22 +142,26 @@ def question_coder(question, check_api=False, do_process=True, is_retry=False):
             question, answer0, answered = get_question(question, ner)
         except Exception:
             import traceback
+
             traceback.print_exc()
-            answer0 = ''
+            answer0 = ""
             answered = False
 
     else:
         raw_question = question
         tips, ner = get_tips(question)
-        answer0 = ''
+        answer0 = ""
         answered = False
 
     if check_api:
-        prompt = answer_prompt + '\n我会给你API的计划调用情况，一般是正确答案，特殊情况会说明，你只需要回答题目里问到的API使用情况，不要多回答'
+        prompt = (
+            answer_prompt
+            + "\n我会给你API的计划调用情况，一般是正确答案，特殊情况会说明，你只需要回答题目里问到的API使用情况，不要多回答"
+        )
     else:
         prompt = answer_prompt
-    question_flow = [{'role': 'system', 'content': prompt}]
-    answer = ''
+    question_flow = [{"role": "system", "content": prompt}]
+    answer = ""
     if not answered:
         if do_process:
             tips, ner = get_tips(question)
@@ -162,25 +169,27 @@ def question_coder(question, check_api=False, do_process=True, is_retry=False):
         question_tips = f"你需要专注的问题为:`{question}`\n{tips}"
 
         answer, flag, plan = coder(question_tips, check_api)
-        answer = answer.split('解答步骤')[-1]
-        answer = [i.strip('`') for i in answer.split('\n')[2:] if not re.match('```|答案|任务已完成|--|ipython', i)]
+        answer = answer.split("解答步骤")[-1]
+        answer = [i.strip("`") for i in answer.split("\n")[2:] if not re.match("```|答案|任务已完成|--|ipython", i)]
 
     # 正则表达式来匹配并捕获值
     pattern = re.compile(r"\{'query_conds': \{(.+?)\}")
-    answer = answer0 + '\n' + '\n'.join(answer)
+    answer = answer0 + "\n" + "\n".join(answer)
     matches = pattern.findall(str(answer), re.DOTALL)
-    key = re.findall("'(.*?)'", ' '.join(matches))
-    msg = ''
+    key = re.findall("'(.*?)'", " ".join(matches))
+    msg = ""
     if "'-'" in answer:
         msg = "记住 '-'也是答案。"
     if check_api:
-        msg += '记住api调用不要多答。'
-    if '小数' in raw_question:
-        msg += '注意小数位数。'
-    if re.search('多少家|几家|多少个|几个|多少起|几起|几件|多少件', raw_question):
-        msg += '不仅需要回答数量，还要需要列举符合条件的公司/案号。'
-    question_flow.append({
-        'role': 'user', 'content': f'''
+        msg += "记住api调用不要多答。"
+    if "小数" in raw_question:
+        msg += "注意小数位数。"
+    if re.search("多少家|几家|多少个|几个|多少起|几起|几件|多少件", raw_question):
+        msg += "不仅需要回答数量，还要需要列举符合条件的公司/案号。"
+    question_flow.append(
+        {
+            "role": "user",
+            "content": f"""
 问题为：{raw_question}
 解答步骤为：
 --
@@ -193,71 +202,77 @@ def question_coder(question, check_api=False, do_process=True, is_retry=False):
 从步骤的第一步开始整理，使用自然语言，不要出现代码格式，也不要计算，回答再包含所有关键节点的时候尽可能简洁，单位与题目保持一致。
 参照示例格式给出答案。
 {msg}
-你的答案：'''
-    })
+你的答案：""",
+        }
+    )
     answer1 = llm(question_flow)
-    answer = answer1.split('关键节点')[0]
+    answer = answer1.split("关键节点")[0]
     if do_process and not is_retry:
-        if '未知' in answer1 or '无法' in answer1:
+        if "未知" in answer1 or "无法" in answer1:
             if answered:  # 如果是仅查询答题完成
                 answer, key = question_coder(raw_question, do_process=False, is_retry=True)
             else:
                 new_question = get_new_question(raw_question, answer)
-                if '解答失败' not in new_question:
+                if "解答失败" not in new_question:
                     new_answer, key2 = question_coder(new_question, is_retry=True)
-                    msg = ''
+                    msg = ""
                     if "'-'" in new_answer:
                         msg = "记住 '-'也是答案"
-                    question_flow.append({
-                        'role': 'user', 'content': f'''问题为：{raw_question}
+                    question_flow.append(
+                        {
+                            "role": "user",
+                            "content": f"""问题为：{raw_question}
 之前的答案为：{answer}
 现在有了更新：{new_answer},
 请更新答案，将之前答案未知的部分替换成答案，其他地方不要改变，不要分析，不要解释，只做替换。
 简单分析后给出答案。{msg}
-更新后的答案：'''})
+更新后的答案：""",
+                        }
+                    )
 
                     answer = llm(question_flow)
                     key.extend(key2)
-    return answer.replace('[未知]', '-'), key
+    return answer.replace("[未知]", "-"), key
 
 
-def process_question(data, result_path='/app/result.json'):
-    data['answer'] = ''
+def process_question(data, result_path="/app/result.json"):
+    data["answer"] = ""
     key = []
     try:
         answer = None
-        if re.search('整合|word', data['question'].replace(' ', ''), re.IGNORECASE):
-            answer = zhenghebaogao_flow(data['question'])
-        if re.search('写一份|起诉状', data['question']):
-            answer = qisuzhuang_flow(data['question'])
+        if re.search("整合|word", data["question"].replace(" ", ""), re.IGNORECASE):
+            answer = zhenghebaogao_flow(data["question"])
+        if re.search("写一份|起诉状", data["question"]):
+            answer = qisuzhuang_flow(data["question"])
 
         if answer is None:
-            if re.search('ＡＰＩ|API|api|接口', data['question'].replace(' ', '')):
-                answer, key = question_coder(data['question'], check_api=True)
+            if re.search("ＡＰＩ|API|api|接口", data["question"].replace(" ", "")):
+                answer, key = question_coder(data["question"], check_api=True)
             else:
-                answer, key = question_coder(data['question'])
+                answer, key = question_coder(data["question"])
 
-        answer = format_answer(data['question'], answer)
+        answer = format_answer(data["question"], answer)
         for i in set(key):
             if i not in str(TABLES):
-                i = i.replace('（', '(').replace('）', ')')
-                if i not in answer and re.search('[\u4e00-\u9fa5]', i) and not re.search('年.*月.*日', i):
+                i = i.replace("（", "(").replace("）", ")")
+                if i not in answer and re.search("[\u4e00-\u9fa5]", i) and not re.search("年.*月.*日", i):
                     answer += i
 
         with file_lock:
-            with open(result_path, 'r', encoding='utf8') as f:
+            with open(result_path, "r", encoding="utf8") as f:
                 all_answer = f.read()
-            with open(result_path, 'w', encoding='utf8') as f:
+            with open(result_path, "w", encoding="utf8") as f:
                 s1 = json.dumps(data, ensure_ascii=False)
-                data['answer'] = answer
+                data["answer"] = answer
                 s2 = json.dumps(data, ensure_ascii=False)
                 new_answer = all_answer.replace(s1, s2)
-                print('\n\n')
-                print(new_answer.replace('\n', '###'))
+                print("\n\n")
+                print(new_answer.replace("\n", "###"))
                 f.write(new_answer)
         return data
     except:
         import traceback
+
         traceback.print_exc()
         return data
 
@@ -266,17 +281,20 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 def main():
-    with open('data/question_c2.json', encoding='utf8') as f:
+    with open("data/question_c2.json", encoding="utf8") as f:
         questions = [json.loads(line) for line in f]
 
-    with open('result.json', 'a', encoding='utf8') as f:
+    with open("result.json", "a", encoding="utf8") as f:
         for i in questions:
-            i['answer'] = ''
+            i["answer"] = ""
             f.write(json.dumps(i, ensure_ascii=False))
-            f.write('\n')
+            f.write("\n")
     with ThreadPoolExecutor(max_workers=5) as executor:
         executor.map(process_question, questions)
 
 
-if __name__ == '__main__':
-    question_coder('航天机电公司投资最高的公司，涉诉案件在哪几家法院进行审理？涉案金额最高的案由为？其中审理案件最基层的法院成立日期提供一下',check_api=True)
+if __name__ == "__main__":
+    question_coder(
+        "航天机电公司投资最高的公司，涉诉案件在哪几家法院进行审理？涉案金额最高的案由为？其中审理案件最基层的法院成立日期提供一下",
+        check_api=True,
+    )

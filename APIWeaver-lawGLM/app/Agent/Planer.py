@@ -1,10 +1,12 @@
 from Agent.llm import llm, super_eval
+
 # from llm import llm4 as llm
 from knowledge.prompt import plan, TOOLS
 import re
-from knowledge.api_info import APIS, TABLES, API_DESC,APIS2
+from knowledge.api_info import APIS, TABLES, API_DESC, APIS2
 import json
 from utils.arg_utils import check_suggestion
+
 # from Agent.Recall import RecallQuestion
 from knowledge.priori import TIPS
 from utils.tips import get_tips
@@ -12,17 +14,25 @@ from utils.tips import get_tips
 
 from knowledge.hard_sample import get_sample
 
-class Planer:
 
+class Planer:
     def __init__(self, question):
         self.question = question
         self.pos_table = []
         sample = get_sample(question)
         user_content = f"""问题：{question} 注意不要被示例混淆，请开始分析，并给出json。"""
-        self.messages = [{'role': 'system', 'content': plan.format(json.dumps(TABLES, ensure_ascii=False, indent=1),
-                                                                   json.dumps(APIS2, ensure_ascii=False, indent=1),
-                                                                   TOOLS, sample)},
-                         {'role': 'user', 'content': user_content}]
+        self.messages = [
+            {
+                "role": "system",
+                "content": plan.format(
+                    json.dumps(TABLES, ensure_ascii=False, indent=1),
+                    json.dumps(APIS2, ensure_ascii=False, indent=1),
+                    TOOLS,
+                    sample,
+                ),
+            },
+            {"role": "user", "content": user_content},
+        ]
 
         # self.tips = tips
         self.plan_true = False
@@ -32,15 +42,16 @@ class Planer:
             if not self.plan_true:
                 self.check_plan()
 
-
-
     def check_plan(self):
-        suggestion_back = ''
+        suggestion_back = ""
         for i in self.plan_list:
-            if i['type'] == '查询':
-                suggestion_back += check_suggestion(i['suggestion'])
+            if i["type"] == "查询":
+                suggestion_back += check_suggestion(i["suggestion"])
         if suggestion_back.strip():
-            self.messages.append({'role': 'user', 'content': f'''
+            self.messages.append(
+                {
+                    "role": "user",
+                    "content": f"""
 以上是计划json中suggestion字段的一些问题：
 ```
 {suggestion_back}
@@ -48,7 +59,9 @@ class Planer:
 错误大多数是没有使用标准的数据库字段或者使用的接口无法获得此字段，请考虑以上问题后，修复上面的问题，
 如果need_fields有问题，则 确定是否需要此字段，例如有案号无需获得法院代字，然后看是否有相似字段，则使用相似字段，如果没有，则考虑重新规划解题路径。
 重新输出分析结果
-'''})
+""",
+                }
+            )
             self.init()
         else:
             self.plan_true = True
@@ -63,8 +76,10 @@ class Planer:
         self.flow = self.get_plan()
 
     def add_plan_message(self, message):
-
-        self.messages.append({'role': 'user', 'content': f'''
+        self.messages.append(
+            {
+                "role": "user",
+                "content": f"""
 之前的计划在执行中遇到了一些问题，以下是执行日志：```{message}```
 计划:{ self.plan_list[self.inx-1]} 无法执行，你需要做的是，根据以及成功执行的代码，和无法执行的步骤，重新规划，
 无法执行的愿意大多是因为：你没有将步骤拆分独立，need_fields缺失字段等，请将过滤和计算分开，并给出更具体的建议和更加独立的步骤和完整的need_fields,依旧按照以下格式输出
@@ -80,16 +95,17 @@ xxx
   ...
 ]
 ```
-'''})
+""",
+            }
+        )
 
     def get_plan(self):
-        plan_str = ''
+        plan_str = ""
         for i in self.plan_list:
             plan_str += f"{i['step']}. {i['goal']}\n"
         return plan_str
 
     def get_next_step(self, message=None):
-
         if message == None:
             if self.inx < len(self.plan_list):
                 step = self.plan_list[self.inx]
@@ -109,24 +125,27 @@ xxx
         if isinstance(message, dict):
             self.messages.append(message)
         else:
-            self.messages.append({'role': 'user', 'content': message})
+            self.messages.append({"role": "user", "content": message})
 
-        _prompt = ''
+        _prompt = ""
         ...
 
     def get_api_answer(self):
-        self.messages.append({
-            'role': 'user',
-            'content': f"请回答{self.question}中关于API调用的问题，备注：API串行的意思是有依赖的执行，即前一步必须依赖后一步，多少类API就是种类，用的API个数是调用了多少个,你在回答此类问题的时候要带上单位次，类或者个，如果使用了函数，除特别提示的次数，也算一次，请先分析后作答"
-        })
+        self.messages.append(
+            {
+                "role": "user",
+                "content": f"请回答{self.question}中关于API调用的问题，备注：API串行的意思是有依赖的执行，即前一步必须依赖后一步，多少类API就是种类，用的API个数是调用了多少个,你在回答此类问题的时候要带上单位次，类或者个，如果使用了函数，除特别提示的次数，也算一次，请先分析后作答",
+            }
+        )
         answer = llm(self.messages)
         return answer
 
     def get_all_plan(self, message):
-        _prompt = '以上是执行情况，请分析执行情况后，重新规划'
+        _prompt = "以上是执行情况，请分析执行情况后，重新规划"
 
     def get_api_num(self):
         from collections import defaultdict
+
         # 构建边列表
         edges = []
         for step in self.plan_list:
@@ -181,18 +200,18 @@ xxx
             print(path)
             path_api_num = 0
             for inx in path:
-                if inx>0:
-                    suggestion = [i for i in self.plan_list if i['step'] == inx][0]['suggestion']
-                    use_api = re.findall('/[a-z_]+|get_court_base_info_by_case_number',suggestion)
-                    use_api = [i for i in use_api if i not in ['/rank','/get_sum']]
+                if inx > 0:
+                    suggestion = [i for i in self.plan_list if i["step"] == inx][0]["suggestion"]
+                    use_api = re.findall("/[a-z_]+|get_court_base_info_by_case_number", suggestion)
+                    use_api = [i for i in use_api if i not in ["/rank", "/get_sum"]]
                     api_list.extend(use_api)
-                    path_api_num+=len(use_api)
-            path_api_num_max += path_api_num-1
+                    path_api_num += len(use_api)
+            path_api_num_max += path_api_num - 1
 
-        res = f'''
+        res = f"""
 共使用了{len(set(api_list))}类api
 调用了{len(api_list)}次
 串行了{path_api_num_max}次
 以上为计划调用，如果题目中有并行情况，例如询问子公司的地址等，则每个子公司都需要调用，此时，调用了多少次需要加上 子公司数量 - 1 例如有3个子公司，则需要在调用次数+2
-'''
+"""
         return res

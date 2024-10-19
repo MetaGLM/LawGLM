@@ -6,9 +6,6 @@ import contextlib
 import io
 
 
-
-
-
 # 法院|get_court_code_by_case_number
 # 根据`案号`匹配法院代字，然后查询`CourtCode`表格，可以["法院名称", "行政级别", "法院级别", "法院代字", "区划代码","级别"]获取性能稳定
 def get_court_code_by_case_number(param):
@@ -19,9 +16,6 @@ def get_court_code_by_case_number(param):
     :return:
     """
     # 实现过程略
-
-
-
 
 
 # /get_legal_document_list|filter_legal_docs|LegalDoc
@@ -54,9 +48,6 @@ def filter_legal_docs(legal_documents_result, filter_dict):
     # 实现过程略
 
 
-
-
-
 # /get_sub_company_info_list|filter_sub_company|SubCompanyInfo
 # 子公司过滤辅助函数,输入关联上市公司全称 金额范围 持股范围 可以通过市公司投资金额和上市公司参股比例筛选子公司
 def filter_sub_company(sub_company_list, filter_dict):
@@ -73,8 +64,6 @@ def filter_sub_company(sub_company_list, filter_dict):
     :return: list[dict] 包含符合条件的子公司信息的列表，每个子公司信息以字典形式表示
     """
     # 实现过程略
-
-
 
 
 # /get_xzgxf_info_list|filter_xzgxf_info_list|XzgxfInfo
@@ -95,11 +84,9 @@ def filter_xzgxf_info_list(xzgxf_info_list, filter_dict):
     # 实现过程略
 
 
-
-
 # 级别.*法院|法院.*级别|sort_court_level
 # 将法院按照从高到低进行排序
-def sort_court_level(case_num_list,level_type='法院级别'):
+def sort_court_level(case_num_list, level_type="法院级别"):
     """
     :param case_num_list: list[dict] or list 案号列表或者 [{"案号":str}],可以直接传入接口结果
     :param level_type: 法院级别 或者 行政级别
@@ -109,13 +96,11 @@ def sort_court_level(case_num_list,level_type='法院级别'):
     # 实现过程略
 
 
-
-
 # .
 # 可以转化字符串成数字
 def map_str_to_num(str_num):
-    '''
+    """
     :param str_num: int|float|str 一些数字 "1万" '1000'  1000.
     return  float
-    '''
+    """
     # 实现过程略

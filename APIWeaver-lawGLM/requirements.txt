@@ -8,3 +8,4 @@ Requests==2.32.3
 python-Levenshtein==0.26.0
 notebook>=7.2.2
 ipykernel>=6.29.5
+ruff>=0.7.0

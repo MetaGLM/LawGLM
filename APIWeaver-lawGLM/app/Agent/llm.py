@@ -34,19 +34,18 @@ def try_n_times(n):
 
 def super_eval(json_str, try_num=0):
     if try_num > 5:
-        return 'json格式错误'
-    json_str = json_str.replace('：', ':')
+        return "json格式错误"
+    json_str = json_str.replace("：", ":")
     try:
-        all_json = re.findall('```json(.*?)```', json_str, re.DOTALL)
+        all_json = re.findall("```json(.*?)```", json_str, re.DOTALL)
         if all_json:
             try:
                 return eval(all_json[-1])
             except:
-
                 return json.loads(all_json[-1])
-        if '```json' in json_str:
-            json_str = json_str.replace('```json', '')
-        json_str = json_str.replace('```', '')
+        if "```json" in json_str:
+            json_str = json_str.replace("```json", "")
+        json_str = json_str.replace("```", "")
         try:
             return eval(json_str)
         except:
@@ -66,11 +65,14 @@ def llm_eval(content, check_function=None):
         if check_function(json.dumps(res)):
             return res
         else:
-            messages = [{'role': 'user', 'content': content},
-                        {'role': 'assistant', 'content': llm_res},
-                        {'role': 'user',
-                         'content': 'json格式化检查未通过，请严格按照json格式输出,并且将json内容放在```json\n```内'}
-                        ]
+            messages = [
+                {"role": "user", "content": content},
+                {"role": "assistant", "content": llm_res},
+                {
+                    "role": "user",
+                    "content": "json格式化检查未通过，请严格按照json格式输出,并且将json内容放在```json\n```内",
+                },
+            ]
             llm_res = llm(messages)
             res = super_eval(llm_res)
             if check_function(json.dumps(res)):
@@ -83,18 +85,18 @@ def llm_eval(content, check_function=None):
 
 def llm1(content, print_str=True, max_input=70000, max_rounds=15):
     if isinstance(content, str):
-        messages = [{'role': 'user', 'content': content}]
+        messages = [{"role": "user", "content": content}]
     elif isinstance(content, list):
         if print_str:
-            print("\033[94m" + content[-1]['content'] + "\033[0m")
+            print("\033[94m" + content[-1]["content"] + "\033[0m")
         if len(content) > max_rounds:
-            raise ValueError('对话轮数过长')
+            raise ValueError("对话轮数过长")
         messages = content
     else:
-        raise ValueError('输入格式错误')
+        raise ValueError("输入格式错误")
 
     if len(str(messages)) > max_input:
-        raise ValueError('消息过长')
+        raise ValueError("消息过长")
     client = random.choice([client_a, client_b, client_c])
     completion = client.chat.completions.create(
         model="GLM-4-plus",
@@ -102,18 +104,18 @@ def llm1(content, print_str=True, max_input=70000, max_rounds=15):
         top_p=0.1,
         max_tokens=5000,
         stream=True,
-        tools=[{'type': 'web_search', 'web_search': {"enable": False, 'type': 'web_search'}}],
+        tools=[{"type": "web_search", "web_search": {"enable": False, "type": "web_search"}}],
     )
-    answer = ''
+    answer = ""
     for chunk in completion:
         if chunk.choices[0].delta:
             c = chunk.choices[0].delta.content
             if print_str:
-                print(c, end='')
+                print(c, end="")
             if isinstance(c, str):
                 answer += c
     if print_str:
-        print('共使用token：', chunk.usage)
+        print("共使用token：", chunk.usage)
     if isinstance(content, list):
         content.append({"role": "assistant", "content": answer})
 
@@ -122,19 +124,19 @@ def llm1(content, print_str=True, max_input=70000, max_rounds=15):
 
 def llm2(content, print_str=False, max_input=70000, max_rounds=15):
     if isinstance(content, str):
-        messages = [{'role': 'user', 'content': content}]
+        messages = [{"role": "user", "content": content}]
     elif isinstance(content, list):
         if print_str:
-            print("\033[94m" + content[-1]['content'] + "\033[0m")
+            print("\033[94m" + content[-1]["content"] + "\033[0m")
 
         if len(content) > max_rounds:
-            raise ValueError('对话轮数过长')
+            raise ValueError("对话轮数过长")
         messages = content
     else:
-        raise ValueError('输入格式错误')
+        raise ValueError("输入格式错误")
 
     if len(str(messages)) > max_input:
-        raise ValueError('消息过长')
+        raise ValueError("消息过长")
 
     completion = client2.chat.completions.create(
         model="GLM-4-plus",
@@ -142,18 +144,18 @@ def llm2(content, print_str=False, max_input=70000, max_rounds=15):
         top_p=0.1,
         max_tokens=5000,
         stream=True,
-        tools=[{'type': 'web_search', 'web_search': {"enable": False, 'type': 'web_search'}}],
+        tools=[{"type": "web_search", "web_search": {"enable": False, "type": "web_search"}}],
     )
-    answer = ''
+    answer = ""
     for chunk in completion:
         if chunk.choices[0].delta:
             c = chunk.choices[0].delta.content
             if print_str:
-                print(c, end='')
+                print(c, end="")
             if isinstance(c, str):
                 answer += c
     if print_str:
-        print('共使用token：', chunk.usage)
+        print("共使用token：", chunk.usage)
     if isinstance(content, list):
         content.append({"role": "assistant", "content": answer})
 
@@ -170,17 +172,12 @@ def llm(*args, **kwargs):
 
 def llm_lite(content):
     if isinstance(content, str):
-        messages = [{'role': 'user', 'content': content}]
+        messages = [{"role": "user", "content": content}]
     elif isinstance(content, list):
         messages = content
     else:
         raise ValueError
-    completion = client2.chat.completions.create(
-        model="GLM-4-AirX",
-        messages=messages,
-        top_p=0.7,
-        temperature=0.9
-    )
+    completion = client2.chat.completions.create(model="GLM-4-AirX", messages=messages, top_p=0.7, temperature=0.9)
 
     answer = completion.choices[0].message.content
     if isinstance(content, list):
@@ -189,6 +186,6 @@ def llm_lite(content):
     return answer
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     for i in range(10):
-        llm1('你好')
+        llm1("你好")
