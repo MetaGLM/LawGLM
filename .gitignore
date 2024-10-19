@@ -9,3 +9,4 @@ logs/
 output*
 test*
 .ipynb_checkpoints
+venv
