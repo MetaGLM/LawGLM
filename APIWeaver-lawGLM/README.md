@@ -44,10 +44,10 @@ python -m ipykernel install --user --name=my_kernel --display-name "My Kernel"
 
 接着，运行主函数：
 
-```
-cd apps
+```shell
+cd app
 
-OPENAI_API_KEY="your ZhipuAI API Keys" run_with_process.py
+OPENAI_API_KEY="your ZhipuAI API Keys" python run_with_process.py
 ```
 
 ## 主要步骤说明
