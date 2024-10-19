@@ -29,11 +29,23 @@ SMP-2024大模型图分析挑战赛top3方案，[开源地址](https://github.co
 
 
 
-### 入口函数
+## 快速开始
 
-`run_with_process.py -> question_coder()`
+1. 安装依赖
 
-主要步骤说明：
+```shell
+pip install -r requirements.txt
+```
+接着，运行主函数：
+          
+```shell
+python -m ipykernel install --user --name=my_kernel --display-name "My Kernel"
+
+cd apps
+OPENAI_API_KEY="your ZhipuAI API Keys" run_with_process.py
+```
+
+## 主要步骤说明
 
 1. 预处理，执行简单的连续查询，如公司简称查询全称，案号查询律师事务所，得到结果添加到记忆并判断是否需要下一步。此步骤主要为了解决简单的查询问题。对于过长的句子简化表达。
 2. plan-action-api，如果简单的连续查询无法解决问题，或者匹配到问题需要计算，则使用plan-action，对应的两个类——Agent/Planer.py，Agent/Executor.py，api.py

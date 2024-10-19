@@ -99,15 +99,8 @@ class CodeKernel:
         if self.kernel_config_path:
             self.kernel_manager.load_connection_file()
             self.kernel_manager.start_kernel(stdout=PIPE, stderr=PIPE)
-            # print("Backend kernel started with the configuration: {}".format(
-            #     self.kernel_config_path))
         else:
             self.kernel_manager.start_kernel(stdout=PIPE, stderr=PIPE)
-            # print("Backend kernel started with the configuration: {}".format(
-            #     self.kernel_manager.connection_file))
-
-        # if verbose:
-        #     pprint(self.kernel_manager.get_connection_info())
 
         # Initialize the code kernel
         self.kernel = self.kernel_manager.blocking_client()
