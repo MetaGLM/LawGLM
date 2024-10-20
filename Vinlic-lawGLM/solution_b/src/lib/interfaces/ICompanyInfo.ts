@@ -1,0 +1,29 @@
+export default interface ICompanyInfo {
+    公司名称?: string;
+    公司简称?: string;
+    英文名称?: string;
+    关联证券?: string;
+    公司代码?: string;
+    曾用简称?: string;
+    所属市场?: string;
+    所属行业?: string;
+    上市日期?: string;
+    法人代表?: string;
+    总经理?: string;
+    董秘?: string;
+    邮政编码?: string;
+    注册地址?: string;
+    办公地址?: string;
+    联系电话?: string;
+    传真?: string;
+    官方网址?: string;
+    电子邮箱?: string;
+    入选指数?: string;
+    主营业务?: string;
+    经营范围?: string;
+    机构简介?: string;
+    每股面值?: string;
+    首发价格?: string;
+    首发募资净额?: string;
+    首发主承销商?: string;
+}

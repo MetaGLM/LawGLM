@@ -1,0 +1,21 @@
+service:
+  urlPrefix: ''
+  host: '0.0.0.0'
+  port: 8656
+  requestLog: true
+task:
+  max_rounds: 15
+  max_retry_rounds: 5
+zhipuai:
+  model: glm-4-0520
+  endpoint: https://open.bigmodel.cn/api/paas/v4
+  api_key: <GLM API KEY>
+  max_tokens: 4096
+law_api:
+  endpoint: https://comm.chatglm.cn/law_api
+  token: <TEAM TOKEN>
+  concurrent: 5
+web_search:
+  model: 659e54b1b8006379b4b2abd6
+  endpoint: http://localhost:8000/v1
+  token: <GLM FREE API TOKEN可不填>
