@@ -32,4 +32,4 @@
 
 我嗯感谢来自以下开发者的贡献：
 
-[![lawglm contributors](https://contrib.rocks/image?repo=lawglm/langchain&max=2000)](https://github.com/metaglm/lawglm/graphs/contributors)
+[![lawglm contributors](https://contrib.rocks/image?repo=metaglm/lawglm&max=2000)](https://github.com/metaglm/lawglm/graphs/contributors)
