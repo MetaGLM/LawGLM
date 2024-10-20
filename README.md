@@ -1,7 +1,7 @@
 # LawGLM
 ## 大赛介绍
 
-关于本次LawGLM比赛及开源项目的背景情况及台前幕后的故事，请参考文档```这是一个关于开源的不忘初心的故事.md```。
+关于本次LawGLM比赛及开源项目的背景情况及台前幕后的故事，请参考文档```remain_true_to_our_original_open-source_aspiration_in_the legal_industry.md```(这是一个关于开源的不忘初心的故事)。
 
 ## 仓库介绍
 
