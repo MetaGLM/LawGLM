@@ -6,9 +6,9 @@
 
 + 比赛链接和介绍: https://tianchi.aliyun.com/competition/entrance/532221
 + 技术： 参赛选手们使用了 Function Call，RAG，长文本等多项技术，让大模型在法律领域发挥了更大的作用。
-+ 模型： 灵活使用 `GLM-4-Air`，`GLM-4-AirX`，`GLM-4-Plus`，`GLM-4-Flash` 等多种 GLM API系列模型。
++ 模型： 比赛选手的灵活使用 `GLM-4-Air`，`GLM-4-AirX`，`GLM-4-Plus`，`GLM-4-Flash` 等多种 GLM API系列模型。
+充分发挥 `GLM-4-AirX` 响应快，`GLM-4-Flash` 免费，`GLM-4-Plus` 精度高等优势，结合使用，实现高性价比解决方案。
 
-比赛链接:
 
 ## 项目更新
 
