@@ -1,12 +1,14 @@
-import json, re
+import json
 import requests
+import os
+import re
 
 from copy import deepcopy
 from zhipuai import ZhipuAI
 
 from new_logtool import VLOG
 
-API_KEY = ""
+API_KEY = os.getenv("OPENAI_API_KEY")
 TEAM_TOKEN = ""
 
 NAME_MAP = {
