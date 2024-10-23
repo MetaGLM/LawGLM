@@ -8,8 +8,8 @@ from D_tools import TOOLS
 from new_logtool import VLOG
 
 MAX_RETRY = 3
-API_KEY = ""
-CLIENT = ZhipuAI(api_key=os.getenv("OPENAI_API_KEY"))
+API_KEY = os.getenv("OPENAI_API_KEY")
+CLIENT = ZhipuAI(api_key=API_KEY)
 
 
 class LLM:
