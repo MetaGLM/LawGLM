@@ -1,2 +1,2 @@
-requests
-zhipuai
+requests==2.32.3
+zhipuai==2.1.0
