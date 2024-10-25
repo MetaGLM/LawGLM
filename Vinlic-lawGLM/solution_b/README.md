@@ -16,5 +16,5 @@ planner降低搜索空间至单个api
 
 ```shell
 pip install -r requirements.txt
-python pipeline.py
+python pipeline.py "[问题输入]"
 ```
