@@ -1,0 +1,40 @@
+{
+  "name": "llm-race",
+  "version": "0.0.1",
+  "description": "LLM Race",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "directories": {
+    "dist": "dist"
+  },
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "dev": "tsup src/index.ts --format cjs,esm --sourcemap --dts --publicDir public --watch --onSuccess \"node --enable-source-maps --no-node-snapshot dist/index.js\"",
+    "start": "node --enable-source-maps --no-node-snapshot dist/index.js",
+    "build": "tsup src/index.ts --format cjs,esm --sourcemap --dts --clean --publicDir public"
+  },
+  "author": "Vinlic",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.2",
+    "colors": "^1.4.0",
+    "date-fns": "^3.6.0",
+    "fs-extra": "^11.2.0",
+    "lodash": "^4.17.21",
+    "openai": "^4.51.0",
+    "yaml": "^2.4.5"
+  },
+  "devDependencies": {
+    "@types/colors": "^1.2.1",
+    "@types/fs-extra": "^11.0.4",
+    "@types/lodash": "^4.14.202",
+    "@types/node": "^20.14.2",
+    "@types/yaml": "^1.9.7",
+    "tsup": "^8.0.2",
+    "typescript": "^5.3.3"
+  }
+}
