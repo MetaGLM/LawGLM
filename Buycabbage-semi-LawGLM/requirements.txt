@@ -1,0 +1,3 @@
+zhipuai>=2.1.5.20230904
+pandas>=2.2.3
+Levenshtein>=0.26.0

@@ -1,0 +1,9 @@
+1、get_legal_document({\'query_conds\':{\'案号\':\'<填充>\'}, \'need_fields\':[\'日期\', \'原告律师事务所\']})
+2、get_lawfirm_info({\'query_conds\':{\'律师事务所名称\':\'<填充>\'}, \'need_fields\':[\'律师事务所地址\']})
+3、get_address_info({\'query_conds\':{\'地址\':\'<填充>\'}, \'need_fields\':[\'省份\', \'城市\']})
+4、get_temp_info({\'query_conds\':{\'日期\':\'<填充>\', \'省份\':\'<填充>\', \'城市\':\'<填充>\'}, \'need_fields\':[\'最低温度\']})
+5、get_court_code({\'query_conds\':{案号：<填充>}, \'need_fields\':[\'法院名称\']})
+6、get_court_info({\'query_conds\':{\'法院名称\': <填充>}, \'need_fields':['法院地址']})
+7、get_address_info({'query_conds':{'地址\':<填充>}, \'need_fields\':[\'省份\', \'城市\']})
+8、get_temp_info({\'query_conds\':{\'日期\':\'<填充>\',\'省份\': \'<填充>\', \'城市\': \'<填充>\'}, \'need_fields\':[\'最低温度\']})
+9、最低温度差，API个数为6个，最小调用次数为8次
