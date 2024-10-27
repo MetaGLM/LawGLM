@@ -3,7 +3,7 @@
 ## 运行代码
 
 1. `pip install -r requirements.txt `
-2. `python run.py`
+2. `ZHIPUAI_API_KEY=your zhipuAI keys python run.py`
 
 ### 方案概述
 

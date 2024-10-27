@@ -10,12 +10,7 @@ import requests
 from zhipuai import ZhipuAI
 import re
 
-with open("api_key.txt", "r", encoding="utf-8") as file:
-    api_key_string = file.read()
-
-client = ZhipuAI(api_key=api_key_string)
-# client = ZhipuAI(api_key="d5c3d44606e1a73a0c6cbcc32440f5fd.3vuwerg0G7xJvN4U")
-
+client = ZhipuAI()
 need_fields = []
 domain = "https://comm.chatglm.cn"
 headers = {

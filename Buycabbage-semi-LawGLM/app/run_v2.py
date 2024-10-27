@@ -16,11 +16,7 @@ import API_diaoyong
 import API_look1
 import tools
 
-with open("api_key.txt", "r", encoding="utf-8") as file:
-    api_key_string = file.read()
-
-client = ZhipuAI(api_key=api_key_string)
-# client = ZhipuAI(api_key="d5c3d44606e1a73a0c6cbcc32440f5fd.3vuwerg0G7xJvN4U")
+client = ZhipuAI()
 domain = "https://comm.chatglm.cn"
 headers = {
     "Content-Type": "application/json",
@@ -618,10 +614,10 @@ def get_sub_company_info(company_name, need_fields: list[str] = None):
 
 
 def get_sub_company_info_list(
-    parent_company_name,
-    need_fields: list[str] = None,
-    only_wholly_owned: bool = False,
-    investment_amount_above: float = 0.0,
+        parent_company_name,
+        need_fields: list[str] = None,
+        only_wholly_owned: bool = False,
+        investment_amount_above: float = 0.0,
 ):
     need_fields = list_dict(need_fields) if need_fields is not None else []
     data1 = {"query_conds": {"关联上市公司全称": parent_company_name}, "need_fields": need_fields}
@@ -637,7 +633,7 @@ def get_sub_company_info_list(
             item
             for item in response
             if item.get("上市公司投资金额")
-            and convert_investment_to_float(item["上市公司投资金额"]) >= investment_amount_above
+               and convert_investment_to_float(item["上市公司投资金额"]) >= investment_amount_above
         ]
 
     return response
@@ -662,7 +658,7 @@ def get_legal_document(case_number, need_fields: list[str] = None, include_judgm
 
 
 def get_legal_document_list(
-    related_company: str, role=None, need_fields: list = None, include_judgment_result: bool = True
+        related_company: str, role=None, need_fields: list = None, include_judgment_result: bool = True
 ):
     """
     根据关联公司查询所有裁判文书相关信息。
@@ -1086,6 +1082,8 @@ def get_lawfirm_info_log(lawfirm_name: str, need_fields: list[str] = None) -> di
         result['律师事务所名称'] =lawfirm_name
     return result
 '''
+
+
 # print(get_lawfirm_info_log('上海申浩（成都）律师事务所'))
 
 
@@ -1587,8 +1585,8 @@ def get_answer_2(question, tools, api_look: bool = True):
                 "get_legal_document_list": get_legal_document_list,
                 "get_court_info": get_court_info,
                 "get_court_code": get_court_code,
-                #'get_lawfirm_info': get_lawfirm_info,
-                #'get_lawfirm_log': get_lawfirm_log,
+                # 'get_lawfirm_info': get_lawfirm_info,
+                # 'get_lawfirm_log': get_lawfirm_log,
                 "get_lawfirm_info_log": get_lawfirm_info_log,
                 "get_address_info": get_address_info,
                 "get_address_code": get_address_code,

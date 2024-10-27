@@ -1,12 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Aug  5 16:52:07 2024
-
-@author: cyc
-"""
-
-import os
 import json
 import concurrent.futures as cf
 import main_glm
@@ -22,7 +13,7 @@ def process_one(question_json):
 
 
 def main():
-    q_path = "../tcdata/question_d.json"
+    q_path = "../../assets/question_d.json"
     result_path = "./result.json"
     result_json_list = []
 

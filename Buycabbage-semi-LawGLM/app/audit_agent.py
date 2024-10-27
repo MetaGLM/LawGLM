@@ -10,17 +10,12 @@ import pandas as pd
 import numpy as np
 from Levenshtein import ratio
 
-with open("api_key.txt", "r", encoding="utf-8") as file:
-    api_key_string = file.read()
-
-client = ZhipuAI(api_key=api_key_string)
-# client = ZhipuAI(api_key="d5c3d44606e1a73a0c6cbcc32440f5fd.3vuwerg0G7xJvN4U")
-
+client = ZhipuAI()
 
 domain = "https://comm.chatglm.cn"
 headers = {
     "Content-Type": "application/json",
-    "Authorization": "Bearer 3BC078EB97F78FB2ABC6B2825A1FE57F783DF2BEE85336CC",  # 团队token:D49……
+    "Authorization": "Bearer 3BC078EB97F78FB2ABC6B2825A1FE57F783DF2BEE85336CC",
 }
 
 
@@ -72,23 +67,23 @@ def audit_agent(question, answer, max_retries=2):
 
             # 更精确的判断逻辑
             if (
-                "没有查询到" in content
-                or "不正确" in content
-                or "没有公开" in content
-                or "未能" in content
-                or "否" in content
-                or "没有" in content
+                    "没有查询到" in content
+                    or "不正确" in content
+                    or "没有公开" in content
+                    or "未能" in content
+                    or "否" in content
+                    or "没有" in content
             ):
                 return False
             elif "是" in content:
                 return True
             else:  # 如果不是预期的简单回答，则根据内容逻辑判断
                 if (
-                    "没有查询到" in content
-                    or "不正确" in content
-                    or "没有公开" in content
-                    or "未能" in content
-                    or "否" in content
+                        "没有查询到" in content
+                        or "不正确" in content
+                        or "没有公开" in content
+                        or "未能" in content
+                        or "否" in content
                 ):
                     return False
                 else:  # 如果内容依然不清晰，决定是否重试
@@ -108,7 +103,7 @@ def audit_agent(question, answer, max_retries=2):
 def replace_nan_with_empty_string(data_list):
     for item in data_list:
         if (
-            "answer" in item and isinstance(item["answer"], float) and np.isnan(item["answer"])
+                "answer" in item and isinstance(item["answer"], float) and np.isnan(item["answer"])
         ):  # 只检查answer键，并且其值为None
             item["answer"] = ""
 

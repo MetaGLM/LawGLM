@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jul  1 18:55:34 2024
-
-@author: 86187
-"""
-
 from zhipuai import ZhipuAI
 import tools
 import run_v2
@@ -12,11 +5,7 @@ import template_look
 import re
 import json
 
-with open("api_key.txt", "r", encoding="utf-8") as file:
-    api_key_string = file.read()
-
-client = ZhipuAI(api_key=api_key_string)
-# client = ZhipuAI(api_key="d5c3d44606e1a73a0c6cbcc32440f5fd.3vuwerg0G7xJvN4U")
+client = ZhipuAI()
 
 
 def find_json(text):
@@ -24,10 +13,7 @@ def find_json(text):
     for attempt in range(1, max_attempts + 1):
         json_pattern = r"```json\n(.*?)\n```"
         match = re.search(json_pattern, text, re.DOTALL)
-
-        # 如果第一个模式没有匹配到内容
         if not match:
-            # 使用第二个正则表达式尝试匹配，这个模式更通用，不包含Markdown特定的标记
             json_pattern2 = r"({.*?})"
             match = re.search(json_pattern2, text, re.DOTALL)
 

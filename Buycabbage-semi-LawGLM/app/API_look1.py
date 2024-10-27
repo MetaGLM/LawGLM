@@ -3,12 +3,7 @@ import json
 import tools
 import pandas as pd
 
-with open("api_key.txt", "r", encoding="utf-8") as file:
-    api_key_string = file.read()
-
-client = ZhipuAI(api_key=api_key_string)
-# client = ZhipuAI(api_key="d5c3d44606e1a73a0c6cbcc32440f5fd.3vuwerg0G7xJvN4U")
-
+client = ZhipuAI()
 
 def glm4_create_air(max_attempts, messages):
     for attempt in range(max_attempts):

@@ -1,25 +1,9 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jul  1 18:55:34 2024
-
-@author: 86187
-"""
-
 from zhipuai import ZhipuAI
 import requests
 import json
-from court_name_pre import to_standard_name
-import company_name_glm4
-import casenumber_pre
-import re
 import run_v2
 
-with open("api_key.txt", "r", encoding="utf-8") as file:
-    api_key_string = file.read()
-
-client = ZhipuAI(api_key=api_key_string)
-# client = ZhipuAI(api_key="d5c3d44606e1a73a0c6cbcc32440f5fd.3vuwerg0G7xJvN4U")
-domain = "https://comm.chatglm.cn"
+client = ZhipuAI()
 headers = {
     "Content-Type": "application/json",
     "Authorization": "Bearer 3BC078EB97F78FB2ABC6B2825A1FE57F783DF2BEE85336CC",  # 团队token:D49……

@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jul  1 18:55:34 2024
-
-@author: 86187
-"""
-
 from zhipuai import ZhipuAI
 
 import pandas as pd
@@ -13,16 +6,14 @@ import json
 
 import run_v2
 
-with open("api_key.txt", "r", encoding="utf-8") as file:
-    api_key_string = file.read()
-
-client = ZhipuAI(api_key=api_key_string)
-# client = ZhipuAI(api_key="d5c3d44606e1a73a0c6cbcc32440f5fd.3vuwerg0G7xJvN4U")
+client = ZhipuAI()
 domain = "https://comm.chatglm.cn"
 headers = {
     "Content-Type": "application/json",
     "Authorization": "Bearer 3BC078EB97F78FB2ABC6B2825A1FE57F783DF2BEE85336CC",  # 团队token:D49……
 }
+
+
 # -----------------------------------------------------整合报告数据报告-------------------------------------------
 
 
@@ -92,18 +83,18 @@ def filter_cases_by_xzgxf(cases, year=None, amount_min=None, amount_max=float("i
 
 
 def generate_company_integrated_report(
-    company_name,
-    include_business=True,
-    include_sub_companies=True,
-    include_restrictions=True,
-    include_litigations=True,
-    year=None,
-    amount_min=None,
-    amount_max=float("inf"),
-    exclude_business_fields=None,
-    exclude_litigation_fields=["判决结果"],
-    only_wholly_owned: bool = False,
-    investment_amount_above: float = 0.0,
+        company_name,
+        include_business=True,
+        include_sub_companies=True,
+        include_restrictions=True,
+        include_litigations=True,
+        year=None,
+        amount_min=None,
+        amount_max=float("inf"),
+        exclude_business_fields=None,
+        exclude_litigation_fields=["判决结果"],
+        only_wholly_owned: bool = False,
+        investment_amount_above: float = 0.0,
 ):
     def str_to_timestamp(date_str):
         # 尝试将字符串转换为 Timestamp
@@ -330,38 +321,26 @@ tools_bg_sz = [
         },
     }
 ]
-
-
-# 调用glm4模型
+## TODO： 这里有问题
 def glm4_create_bg(max_attempts, messages):
     for attempt in range(max_attempts):
         response = client.chat.completions.create(
-            model="glm-4-0520",  # 填写需要调用的模型名称
+            model="glm-4-plus",
             messages=messages,
             tools=tools_bg_sz,
         )
         print("------------------------调用了 glm4_create_bg------------------")
-        # print(response)
-        # print(attempt)
         if "```python" in response.choices[0].message.content:
-            # 如果结果包含字符串'python'，则继续下一次循环
             continue
         else:
-            # 一旦结果不包含字符串'python'，则停止尝试
             break
-    # 检查最终的response是否仍然包含字符串'python'
-    # if 'python' in response.choices[0].message.content:
-    #  raise ValueError("最终响应中仍然包含字符串'python'")
-    # 返回最终的response
     return response
 
 
 # 执行函数部分
 def get_answer_bg(question):
     try:
-        #        function_result_logger=[]
         ques = question
-        # ques=pre_question.pre_que1(ques)
         messages = []
 
         messages.append(
@@ -373,15 +352,12 @@ def get_answer_bg(question):
         messages.append({"role": "user", "content": ques})
 
         response = glm4_create_bg(2, messages)
-        print(response.choices[0].message)
         messages.append(response.choices[0].message.model_dump())
         messages1 = []
-
-        # messages1.append({"role": "system", "content": "不要假设或猜测传入函数的参数值。如果用户的描述不明确，请要求用户提供必要信息,要区分"})
         messages1.append({"role": "user", "content": ques})
 
         jisu = 1
-        max_iterations = 1  # 设置一个最大循环次数限制
+        max_iterations = 1
         print("-----------123--------------")
 
         if response.choices[0].message.tool_calls and jisu <= max_iterations:
@@ -413,14 +389,9 @@ def get_answer_bg(question):
         print(f"Error generating answer for question: {question}, {e}")
 
         return None, None
-
-
-# Function to transform the specific part of the string
 def transform_string(s):
     # Split the string by underscores
     parts = s.split("_")
-
-    # Find the index of 'companyregister'
     companyregister_index = None
     for i, part in enumerate(parts):
         if part.startswith("companyregister"):
@@ -462,31 +433,17 @@ def bg_yz(ques):
         try:
             result = bg_yz_1(ques)
             print(f"尝试 {attempt + 1} 的结果: {result}")
-            if (
-                "失败" not in result
-            ):  # and result in ['Word_马应龙药业集团股份有限公司_companyregister1_17_subcompanyinfo3_5_legallist4_12_xzgxflist0_0','Word_深圳市瑞丰光电子股份有限公司_companyregister1_17_subcompanyinfo3_5_legallist2_12_xzgxflist0_0','Word_利亚德光电股份有限公司_companyregister1_18_subcompanyinfo6_5_legallist14_12_xzgxflist0_0','Word_龙建路桥股份有限公司_companyregister1_17_subcompanyinfo7_5_legallist9_12_xzgxflist0_0','Word_广汇能源股份有限公司_companyregister0_0_subcompanyinfo147_5_legallist22_12_xzgxflist5_8','Word_甘肃省敦煌种业集团股份有限公司_companyregister1_18_subcompanyinfo17_5_legallist5_12_xzgxflist1_8'] :
+            if ("失败" not in result):
                 print("成功生成 word！")
                 return result
             attempt += 1
         except Exception as e:
-            # 打印异常信息但不中断循环
             print(f"发生异常: {e}")
-            attempt += 1  # 继续下一次尝试
+            attempt += 1
     print("达到最大尝试次数，未成功生成 word。")
     return result
 
 
 if __name__ == "__main__":
-    # ques="利亚德光电股份有限公司关于工商信息及投资金额过亿的全资子公司，所有公司的立案时间在19年涉案金额不为0的裁判文书（不需要判决结果）整合报告。"
-    # ques1='马应龙药业集团股份有限公司关于工商信息（不包括公司简介）及投资金额过亿的全资子公司，母公司及子公司的审理时间在2020年涉案金额大于10万的裁判文书（不需要判决结果）整合报告。'
-    # print(bg_yz(ques1))
-    # ques1='深圳市瑞丰光电子股份有限公司关于工商信息（不包括公司简介）及投资金额过亿的全资子公司，母公司及子公司的审理时间在2020年涉案金额大于10万的裁判文书（不需要判决结果）整合报告。'
-    # print(bg_yz(ques1))
-    #  ques1='利亚德光电股份有限公司关于工商信息及投资金额过亿的全资子公司，所有公司的立案时间在19年涉案金额不为0的裁判文书（不需要判决结果）整合报告。'
-    # print(bg_yz(ques1))
-    # ques1='龙建路桥股份有限公司关于工商信息（不包括公司简介）及投资金额过亿的全资子公司，母公司及子公司的立案时间在2019年涉案金额不为0的裁判文书（不需要判决结果）整合报告。'
-    # print(bg_yz(ques1))
-    # ques1='广汇能源股份有限公司子公司列表，母公司及子公司的立案时间在2019年涉案金额不为0的裁判文书及限制高消费（不需要判决结果）整合报告。'
-    # print(bg_yz(ques1))
     ques1 = "甘肃省敦煌种业集团股份有限公司关于工商信息（不需要经验范围和公司简介）及子公司信息，母公司及子公司的立案时间在2019年涉案金额不为0的裁判文书及限制高消费（不需要判决结果,也不需要文件名）整合报告。"
     print(bg_yz(ques1))

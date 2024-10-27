@@ -1,24 +1,9 @@
-# -*- coding: utf-8 -*-
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jul 10 09:25:41 2024
-
-@author: 86187
-"""
-
-import requests
 from zhipuai import ZhipuAI
 import re
 import json
-# 初始化API客户端
 
 
-with open("api_key.txt", "r", encoding="utf-8") as file:
-    api_key_string = file.read()
-
-client = ZhipuAI(api_key=api_key_string)
-# client = ZhipuAI(api_key="d5c3d44606e1a73a0c6cbcc32440f5fd.3vuwerg0G7xJvN4U")
-
+client = ZhipuAI()
 
 domain = "https://comm.chatglm.cn"
 headers = {

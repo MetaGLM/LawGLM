@@ -36,11 +36,9 @@ def get_court_code_test(courtname):
 
 # 假设您有一个规范的法院名录列表
 def to_standard_name_1(non_standard_name):
-    df = pd.read_excel("./data_t/法院名录库.xlsx")  # 暂时使用在这个方案 也可以和公司名称、案号一样采用大模型修正
+    df = pd.read_excel("法院名录库.xlsx")
     LL = list(df["法院名称"])
     standard_courts = LL
-
-    # 不规范的名字
     non_standard_name = non_standard_name
 
     # 定义一个函数来处理字符串，移除“人民法院”

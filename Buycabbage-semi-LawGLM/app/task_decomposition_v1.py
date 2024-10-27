@@ -1,13 +1,5 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jul 10 05:42:56 2024
-
-@author: 86187
-"""
-
 import json
 
-# import requests
 from zhipuai import ZhipuAI
 import re
 import run_v2
@@ -15,11 +7,8 @@ import API_diaoyong
 import tools
 import API_look1
 
-with open("api_key.txt", "r", encoding="utf-8") as file:
-    api_key_string = file.read()
+client = ZhipuAI()
 
-client = ZhipuAI(api_key=api_key_string)
-# client = ZhipuAI(api_key="d5c3d44606e1a73a0c6cbcc32440f5fd.3vuwerg0G7xJvN4U")
 
 need_fields = []
 domain = "https://comm.chatglm.cn"
@@ -78,7 +67,7 @@ def extract_and_parse_json(question):
 
     """
     # 指定文件路径
-    file_path = './promt1.txt'
+    file_path = './prompt.txt'
         # 使用with语句打开文件，这种方式不需要手动关闭文件
     with open(file_path, 'r', encoding='utf-8') as file:
         # 读取文件内容

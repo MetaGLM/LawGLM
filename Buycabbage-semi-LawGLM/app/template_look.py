@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Aug  1 06:13:32 2024
-
-@author: 86187
-"""
-
 from zhipuai import ZhipuAI
 import prompt.ans_template
 import re
@@ -12,20 +5,10 @@ from Levenshtein import ratio
 import pandas as pd
 import numpy as np
 
-with open("api_key.txt", "r", encoding="utf-8") as file:
-    api_key_string = file.read()
-
-client1 = ZhipuAI(api_key=api_key_string)
-# client = ZhipuAI(api_key="d5c3d44606e1a73a0c6cbcc32440f5fd.3vuwerg0G7xJvN4U")
-
-
-# print(LLL)
-
+client = ZhipuAI()
 
 def find_muban(question_text):
-    # 假设这是第42题的问题文本
 
-    # 使用正则表达式查找 "42"
     match = re.search(r"第(\d+)题", question_text)
 
     if match:
@@ -40,11 +23,10 @@ def find_muban(question_text):
 
 # 调用glm4模型
 def glm4_create_pick(messages):
-    response = client1.chat.completions.create(
-        model="glm-4-0520",  # 填写需要调用的模型名称#GLM-4
+    response = client.chat.completions.create(
+        model="glm-4-plus",
         messages=messages,
     )
-    # tools=tools)
 
     total_tokens = response.usage.total_tokens
 
@@ -54,27 +36,24 @@ def glm4_create_pick(messages):
 
 
 def get_template_by_id(data_list, id_to_find):
-    # 如果 id_to_find 为空或者无法转换为整数，则直接返回空字符串
+
     if not id_to_find:
         return "", ""
 
     try:
         search_id = int(id_to_find)
     except ValueError:
-        # 如果转换失败，则返回空字符串
         return "", ""
 
-    # 遍历数据列表
     for item in data_list:
         if item["id"] == search_id:
             way_value = item.get("way", "")
             return item["template"], way_value
 
-    # 如果没有找到匹配项，则返回空字符串
     return "", ""
 
 
-def find_template(question):  # 大模型寻找模板模式
+def find_template(question):
     answer_template = prompt.ans_template.answer_template
     LLL = []
     for i in answer_template:

@@ -10,12 +10,7 @@ import requests
 from zhipuai import ZhipuAI
 import re
 
-with open("api_key.txt", "r", encoding="utf-8") as file:
-    api_key_string = file.read()
-
-client = ZhipuAI(api_key=api_key_string)
-# client = ZhipuAI(api_key="d5c3d44606e1a73a0c6cbcc32440f5fd.3vuwerg0G7xJvN4U")
-
+client = ZhipuAI()
 need_fields = []
 domain = "https://comm.chatglm.cn"
 headers = {
@@ -138,7 +133,7 @@ def standardize_case_number(name):
                 return registered_name["案号"]
         else:
             # 如果标准化失败（result为None或空），记录日志或进行其他处理
-            print(f"Failed to extract case number from '{name}' on attempt {attempt+1}")
+            print(f"Failed to extract case number from '{name}' on attempt {attempt + 1}")
             # 可以选择继续循环或提前退出
 
     # 如果循环结束仍未找到注册名称，返回原始名称或错误信息
@@ -189,7 +184,6 @@ if __name__ == "__main__":
 
     # 案号 大模型修正
     print(standardize_case_number("2020吉0184民初5156号"))
-
 
 """
 
