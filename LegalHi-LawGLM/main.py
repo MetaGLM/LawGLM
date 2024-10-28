@@ -1,3 +1,18 @@
+from LLM import *
+from prompt import *
+from tool_register.register import *
+from tool_register.tools import *
+from memory import *
+from execute_plan import execute_plan
+import json
+import time
+from tool_register.schema import database_schema
+# from prompt import TABLE_PROMPT, TABLE_PLAN_PROMPT, QUESTION_CLASS
+from tool_register.schema import *
+from tools_class import *
+from produce_sue import *
+from produce_report import *
+from utils import *
 from reflexion import *
 
 table_map = {
@@ -90,6 +105,7 @@ def run(line):
         question_type = is_produce_question(question)
         answer = ""
         a_answer = ""
+        # print(question_type)
 
         if question_type == 1:
             a_answer = "民事起诉状的答案为：" + process_sue(question)
@@ -118,7 +134,6 @@ def run(line):
                 "题目中可以查询日期是什么？地址是什么？该地址对应的省份、城市是什么？该省份城市在当天的温度是多少？"
             )
 
-        #### 实在不行删除这一步。
         other_information = ""
         if "起诉时间" in question or "起诉日期" in question:
             other_information = "如果需要筛选，筛选的日期为起诉时间，起诉时间是案号中的括号内年份。"
@@ -140,6 +155,8 @@ def run(line):
                 break
             except:
                 new_question = question
+
+        # print("new: ", new_question)
 
         if new_question.find("API") != -1 or new_question.find("ＡＰＩ") != -1:
             needAPI = True
@@ -286,8 +303,8 @@ def run(line):
                 self_judege_response = {"Answer": "False"}
                 new_answer = question
 
-        # print(old_answer)
-        # print(new_answer)
+        # print("old_answer: ", old_answer)
+        # print("new_answer: ", new_answer)
         answer = simplify_answer(old_answer + new_answer)
         if (
             a_answer != "生成起诉状失败，请检查输入参数是否正确"
@@ -306,7 +323,6 @@ def run(line):
         answer = transfer_digit(answer)
 
         id = line["id"]
-        print(id)
         if question_type == 0:
             try:
                 if self_judege_response["Answer"] != "True":  # 第一次做不对
@@ -323,7 +339,7 @@ def run(line):
                 if self_judege_response["Answer"] != "True":  # 如果第二次做也不对，尝试重跑
                     if re_run > 1:
                         re_run -= 1
-                        print("重跑", re_run)
+                        # print("重跑", re_run)
                         continue  # 不会return，而是进行下一次循环
             except:
                 pass
@@ -350,7 +366,7 @@ def run_all(line, f):
         answer = run(a_dict)
     except:
         qid = a_dict["id"]
-        print(f"\n s{qid}运行出错，检查流程。\n")
+        # print(f"\n s{qid}运行出错，检查流程。\n")
         answer = a_dict["question"]
         traceback.print_exc()
 
@@ -362,8 +378,9 @@ def run_all(line, f):
 
 
 if __name__ == "__main__":
-    query_path = "./data/question_c.json"
-    all_querys = [i for i in open(query_path, "r", encoding="utf-8").readlines() if i.strip()][101:102]
+    query_path = "../assets/question_d.json"
+    all_querys = [i for i in open(query_path, "r", encoding="utf-8").readlines() if i.strip()][19:20]
     for query in all_querys:
         line = json.loads(query)
+        # print(line)
         run(line)

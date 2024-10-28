@@ -193,7 +193,6 @@ def final_answer(question, answer):
 
 
 def rewrite_api_answer(api_answer):
-    print("api_answer is ", api_answer)
     prompt = f"""
     你是一个擅长整合API调用情况的高级代理。请根据提供的API调用情况，回答关于API调用次数、串行调用次数、调用种类、串行调用种类方面的问题。
     直接输出最终答案，不要输出分析过程，不要输出多余信息。问题类型有如下四种：
@@ -205,7 +204,6 @@ def rewrite_api_answer(api_answer):
     最终答案：
     """
     answer = LLM(query=prompt)
-    print("rewrite answer is ", answer)
     return answer
 
 
@@ -230,7 +228,6 @@ def final_api_answer(question, answer, api_answer):
     最终答案：
     """
     final_answer = LLM(query=prompt)
-    print("最终答案为：", final_answer)
     return final_answer
 
 

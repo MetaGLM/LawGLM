@@ -101,6 +101,7 @@ def execute_plan(
             except:
                 pass
 
+        # print(thought, action)
         try:
             action_one = action.split("[")[0]
         except Exception as e:
@@ -152,6 +153,7 @@ def execute_plan(
                 pass
 
             scratchpad += f"思考{step}: {thought}\n行动{step}: {action}\n观察{step}: {answer}\n"
+            # print(scratchpad)
 
         elif action_one == "查询统计":
             try:

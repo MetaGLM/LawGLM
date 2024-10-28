@@ -13,7 +13,7 @@ from main import run, run_all
 
 def main():
     q_path = "../assets/question_d.json"
-    result_path = "/app/result.json"
+    result_path = "./app/result.json"
     result_json_list = []
 
     q_json_list = [json.loads(x.strip()) for x in open(q_path, "r", encoding="utf-8").readlines()]
