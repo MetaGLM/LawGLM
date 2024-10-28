@@ -1,11 +1,3 @@
-"""
-Author: lihaitao
-Date: 2024-07-05 00:22:28
-LastEditors: Do not edit
-LastEditTime: 2024-08-07 15:01:08
-FilePath: /GLM2024/submit-image-demo/app/main.py
-"""
-
 from reflexion import *
 
 table_map = {
@@ -266,9 +258,7 @@ def run(line):
                     self_judege_response = {"Answer": "True"}
 
         old_answer = answer.replace("\n", " ")
-        # print("old answer is ", old_answer)
         new_answer = ""
-        # print("scratchpad is ", scratchpad)
         if question_type == 0:
             try:
                 if self_judege_response["Answer"] != "True":

@@ -18,11 +18,9 @@ from tool_register.schema import database_schema
 
 
 def LLM(query):
-    api_key = random.choice(API_KEY)
-    client = ZhipuAI(api_key=api_key)
-    # client = ZhipuAI(api_key=API_KEY)
+    client = ZhipuAI()
     response = client.chat.completions.create(
-        model="glm-4",
+        model="glm-4-plus",
         messages=[
             {"role": "user", "content": query},
         ],

@@ -1,11 +1,3 @@
-"""
-Author: lihaitao
-Date: 2024-07-22 19:18:40
-LastEditors: Do not edit
-LastEditTime: 2024-07-27 03:06:49
-FilePath: /GLM2024/GLM4-B-dev/memory.py
-"""
-
 import json
 
 memory_path = "./memory.json"

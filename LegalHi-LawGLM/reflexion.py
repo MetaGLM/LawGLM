@@ -14,7 +14,6 @@ from action import Retrive, Rank, Sum, filter_answer
 
 
 def add_api_info_to_answer(question="", action="", answer="", api_name="", api_args=""):
-    # needFormerRes_answer = LLM(needFormerRes_CLASS.format(question=question, action=action)) ###这个存疑是否可以改进
     needFormerRes = ""
     try:
         for key in api_args["query_conds"]:

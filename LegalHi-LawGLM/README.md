@@ -33,5 +33,5 @@ pip install -r requirements.txt
 2. 运行主函数：
 
 ```shell
-bash run.sh
+ZHIPUAI_API_KEY="your zhipuAI keys" python run.py
 ```

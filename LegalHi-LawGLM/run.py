@@ -12,10 +12,8 @@ from main import run, run_all
 
 
 def main():
-    q_path = "/tcdata/question_d.json"
+    q_path = "../assets/question_d.json"
     result_path = "/app/result.json"
-    # q_path = 'question_c.json'
-    # result_path = 'result.json'
     result_json_list = []
 
     q_json_list = [json.loads(x.strip()) for x in open(q_path, "r", encoding="utf-8").readlines()]
@@ -23,7 +21,6 @@ def main():
         future_list = [executor.submit(run, q_json) for q_json in q_json_list]
         for future in cf.as_completed(future_list):
             result_json_list.append(future.result())
-    # print(result_json_list)
     result_json_list.sort(key=lambda x: x["id"])
     open(result_path, "w", encoding="utf-8").write(
         "\n".join([json.dumps(x, ensure_ascii=False) for x in result_json_list])
