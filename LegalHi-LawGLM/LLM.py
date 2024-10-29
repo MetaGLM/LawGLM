@@ -7,14 +7,11 @@ FilePath: /GLM2024/submit-image-demo/app/LLM.py
 """
 
 from zhipuai import ZhipuAI
-from prompt import *
 import json
 import re
 import random
 
 MAX_RETRY = 2
-
-from tool_register.schema import database_schema
 
 
 def LLM(query):

@@ -1,18 +1,6 @@
-from LLM import *
-from prompt import *
-from tool_register.register import *
-from tool_register.tools import *
-from memory import *
 from execute_plan import execute_plan
-import json
-import time
-from tool_register.schema import database_schema
-# from prompt import TABLE_PROMPT, TABLE_PLAN_PROMPT, QUESTION_CLASS
 from tool_register.schema import *
-from tools_class import *
 from produce_sue import *
-from produce_report import *
-from utils import *
 from reflexion import *
 
 table_map = {
@@ -60,6 +48,7 @@ CN_NUM = {
 
 pattern = r"(〇|一|二|三|四|五|六|七|八|九|零|壹|贰|叁|肆|伍|陆|柒|捌|玖|貮|两)(类|次|种|个)"
 
+
 # log_file = open('log_0804.txt','a')
 
 
@@ -74,16 +63,11 @@ def transfer_digit(answer):
 
 
 def is_produce_question(question: str):
-    # 输入原问题，判断是否是生成民事起诉状、整合报告、正常问题，如果涉及民事起诉状，则返回1，如果涉及整合报告返回2，如果都不涉及返回0
-    type = ""
     try:
         type_prompt = QUESTION_TYPE.format(action=question)
         type_answer = LLM(type_prompt)
-        # print(type_answer)
         type = prase_json_from_response(type_answer)["Type"]
-        # print(type)
     except:
-        # traceback.print_exc()
         type = ""
     if type == "民事起诉撰写":
         return 1
@@ -97,7 +81,6 @@ def run(line):
     re_run = 2  # re_run == 2 代表设置总共可以run2次，可以 重跑 1次
     while re_run > 0:
         question = line["question"]
-        max_retries = 2
         needAPI = False
         API_answer = ""
         other_observations = ""
@@ -105,7 +88,6 @@ def run(line):
         question_type = is_produce_question(question)
         answer = ""
         a_answer = ""
-        # print(question_type)
 
         if question_type == 1:
             a_answer = "民事起诉状的答案为：" + process_sue(question)
@@ -125,10 +107,10 @@ def run(line):
         if question.find("城市区划代码") != -1:
             question += "地址是什么？该地址对应的省份城市区县是什么？根据该省份城市区县（在查询时请输入省份、城市、区县字段）查询得到的城市区划代码是多少?"
         if (
-            question.find("天气") != -1
-            or question.find("最高温度") != -1
-            or question.find("最低温度") != -1
-            or question.find("湿度") != -1
+                question.find("天气") != -1
+                or question.find("最高温度") != -1
+                or question.find("最低温度") != -1
+                or question.find("湿度") != -1
         ):
             question += (
                 "题目中可以查询日期是什么？地址是什么？该地址对应的省份、城市是什么？该省份城市在当天的温度是多少？"
@@ -155,8 +137,6 @@ def run(line):
                 break
             except:
                 new_question = question
-
-        # print("new: ", new_question)
 
         if new_question.find("API") != -1 or new_question.find("ＡＰＩ") != -1:
             needAPI = True
@@ -260,8 +240,8 @@ def run(line):
                 )
                 break
             except Exception as e:
-                # print("出问题",question)
-                # traceback.print_exc()
+                print("运行错误:", question)
+                traceback.print_exc()
                 answer = question
 
         if question_type == 0:
@@ -304,11 +284,11 @@ def run(line):
                 new_answer = question
 
         # print("old_answer: ", old_answer)
-        # print("new_answer: ", new_answer)
+        print("new_answer: ", new_answer)
         answer = simplify_answer(old_answer + new_answer)
         if (
-            a_answer != "生成起诉状失败，请检查输入参数是否正确"
-            and a_answer != "生成Word文档失败，请检查输入数据是否正确"
+                a_answer != "生成起诉状失败，请检查输入参数是否正确"
+                and a_answer != "生成Word文档失败，请检查输入数据是否正确"
         ):
             answer += a_answer
         # if a_answer!= "生成起诉状失败，请检查输入参数是否正确" and a_answer != "生成Word文档失败，请检查输入数据是否正确" and a_answer!="":
@@ -366,7 +346,6 @@ def run_all(line, f):
         answer = run(a_dict)
     except:
         qid = a_dict["id"]
-        # print(f"\n s{qid}运行出错，检查流程。\n")
         answer = a_dict["question"]
         traceback.print_exc()
 
@@ -382,5 +361,4 @@ if __name__ == "__main__":
     all_querys = [i for i in open(query_path, "r", encoding="utf-8").readlines() if i.strip()][19:20]
     for query in all_querys:
         line = json.loads(query)
-        # print(line)
         run(line)
