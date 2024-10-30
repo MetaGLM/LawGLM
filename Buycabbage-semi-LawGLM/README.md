@@ -2,9 +2,17 @@
 
 ## 运行代码
 
-1. `pip install -r requirements.txt `
-2. `export ZHIPUAI_API_KEY="your zhipuAI key"  python main_glm.py`  #单个题测试,不会大量消耗tokens
-3. `ZHIPUAI_API_KEY=your zhipuAI keys python run.py`  #特别注意,如果tokens不足,请不要运行run.py
+1. 安装依赖
+```shell
+pip install -r requirements.txt
+```
+
+2. 执行代码
+```shell
+cd app.py
+ZHIPUAI_API_KEY="your zhipuAI key" python main_glm.py # 执行单个样例
+ZHIPUAI_API_KEY="your zhipuAI key" python run.py  # 执行完整问题
+```
 
 ### 方案概述
 
