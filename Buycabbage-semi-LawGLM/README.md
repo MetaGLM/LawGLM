@@ -1,9 +1,10 @@
-# 基于GLM多智能体协同的法律行业问答系统
+# 基于GLM多智能体协同的法律行业问答系统--买白菜不砍价
 
 ## 运行代码
 
 1. `pip install -r requirements.txt `
-2. `ZHIPUAI_API_KEY=your zhipuAI keys python run.py`
+2. `export ZHIPUAI_API_KEY="your zhipuAI key"  python main_glm.py`  #单个题测试,不会大量消耗tokens
+3. `ZHIPUAI_API_KEY=your zhipuAI keys python run.py`  #特别注意,如果tokens不足,请不要运行run.py
 
 ### 方案概述
 
@@ -46,5 +47,3 @@ run_conversation_psby 函数整合了上述功能，以提供完整的解决方�
 ### 其他事项
 在盲答过程中，我们引入了模型集成的思想来提升回答的质量。当初始模型无法给出有效答案时，我们会让模型再次尝试回答，并且直接调用另一个执行模型来获取答案。随后，我们将这两次的回答与初始答案进行比较，最终由大模型从中挑选出最佳答案作为最终结果。
 对于诉状和整合报告这类特定类型的问题，我们采用了专门的智能体来进行解答。由于比赛时间紧迫，这些特定的智能体暂时未能完全融入到我们的多智能体协同方法中。如果后期能够将它们完善并融入到整个系统中，预计还能进一步提升整体的性能和准确性。
-
-### 1223
