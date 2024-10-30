@@ -20,7 +20,7 @@ client = ZhipuAI()
 domain = "https://comm.chatglm.cn"
 headers = {
     "Content-Type": "application/json",
-    "Authorization": "Bearer 3BC078EB97F78FB2ABC6B2825A1FE57F783DF2BEE85336CC",  # 团队token:D49……
+    "Authorization": "Bearer black_myth_wukong",  # 团队token:D49……
 }
 
 
@@ -1506,17 +1506,21 @@ def get_top_companies_by_capital(company_name, rank_type="特定排名", rank_po
 def glm4_create(max_attempts, messages, tools):
     for attempt in range(max_attempts):
         response = client.chat.completions.create(
-            model="glm-4-0520",  # 填写需要调用的模型名称#GLM-4
+            model="GLM-4-plus",  # 填写需要调用的模型名称#GLM-4
             messages=messages,
             tools=tools,
         )
         print(attempt)
-        if "```python" in response.choices[0].message.content:
-            # 如果结果包含字符串'python'，则继续下一次循环
-            continue
+        if response.choices and response.choices[0].message and response.choices[0].message.content:
+
+            if '```python' in response.choices[0].message.content:
+                # 如果结果包含字符串'python'，则继续下一次循环
+                continue
+            else:
+                # 一旦结果不包含字符串'python'，则停止尝试
+                break
         else:
-            # 一旦结果不包含字符串'python'，则停止尝试
-            break
+             return response
     # 检查最终的response是否仍然包含字符串'python'
     # if 'python' in response.choices[0].message.content:
     #  raise ValueError("最终响应中仍然包含字符串'python'")
@@ -1691,34 +1695,5 @@ def answer_yh(question, answer, function_result_logger):
             answer_yh = answer
 
         return answer_yh
-
-
-# 示例数据
-# data = [[{'被告': '西宁红星美凯龙世博家居广场有限公司', '案号': '(2020)青01民终763号'}], [{'组织机构代码': '07459586-0', '公司名称': '西宁红星美凯龙世博家居广场有限公司'}]]
-
-# 提取所有的值
-# all_values = extract_values(data)
-
-
-# print(get_legal_document_list('爱玛科技集团股份有限公司'))
-# print(get_legal_document_list('河南龙马环境产业有限公司'))
-
 if __name__ == "__main__":
-    # print(get_court_code(**{"key": "法院名称", "value": "北京丰台区人民法院"}))
-
-    # tools_all=tools.tools_all
-    # ques='查询沈阳先锋工程机械销售有限公司涉案金额第二高的案件 使用这个工具get_highest_legal_document_by_companyname'
-    # answer,function_result_logger =get_answer_2(ques,tools_all)
-    # print(function_result_logger)
-
-    # print(get_company_info('公司名称','信息产业电子第十一设计研究院科技工程股份有限公司'))
-    #   print(function_11(
-    #    **{"company": "廊坊市凯宏家居广场有限公司", "role": "defendant", "year": 2019}
-    # ))
-    # print(get_legal_document('(2021)粤1973民初22493号',include_judgment_result=True))
-    # print(get_lawfirm_log('河南良承事务所'))
-    # print(get_lawfirm_info_log('北京市广盛律师事务所'))
-    # print(get_legal_document_list(**{"related_company": "长沙市银红家居有限公司", "role": "原告", "need_fields": ["案号", "判决结果"]}))
-    # print(get_legal_document('(2021)粤1973民初22493号',need_fields=['判决结果']))
-    # print(get_highest_legal_document_by_companyname('重庆啤酒股份有限公司',n=2))
-    print(get_top_companies_by_capital("安徽皖仪科技股份有限公司", "特定排名", -1))
+    print(get_highest_legal_document_by_companyname('重庆啤酒股份有限公司',n=2))
