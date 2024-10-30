@@ -8,7 +8,7 @@ client = ZhipuAI()
 def glm4_create_air(max_attempts, messages):
     for attempt in range(max_attempts):
         response = client.chat.completions.create(
-            model="glm-4-0520",
+            model="glm-4-plus",
             messages=messages,
         )
         if "```python" in response.choices[0].message.content:

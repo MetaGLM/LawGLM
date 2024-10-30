@@ -15,7 +15,7 @@ need_fields = []
 domain = "https://comm.chatglm.cn"
 headers = {
     "Content-Type": "application/json",
-    "Authorization": "Bearer 3BC078EB97F78FB2ABC6B2825A1FE57F783DF2BEE85336CC",  # 团队token:D49……
+    "Authorization": "Bearer black_myth_wukong",  # 团队token:D49……
 }
 
 
@@ -127,7 +127,7 @@ def get_legal_document_list_checkname(company_name: str) -> dict:
 def glm4_create(max_attempts, messages):
     for attempt in range(max_attempts):
         response = client.chat.completions.create(
-            model="glm-4-0520",  # 填写需要调用的模型名称
+            model="glm-4-plus",  # 填写需要调用的模型名称
             messages=messages,
         )
         if "```python" in response.choices[0].message.content:

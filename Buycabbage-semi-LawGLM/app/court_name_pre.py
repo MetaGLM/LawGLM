@@ -13,7 +13,7 @@ from Levenshtein import ratio
 domain = "https://comm.chatglm.cn"
 headers = {
     "Content-Type": "application/json",
-    "Authorization": "Bearer 3BC078EB97F78FB2ABC6B2825A1FE57F783DF2BEE85336CC",  # 团队token:D49……
+    "Authorization": "Bearer black_myth_wukong",  # 团队token:D49……
 }
 
 

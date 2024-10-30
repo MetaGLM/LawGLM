@@ -23,7 +23,7 @@ client = ZhipuAI(api_key=api_key_string)
 domain = "https://comm.chatglm.cn"
 headers = {
     "Content-Type": "application/json",
-    "Authorization": "Bearer 3BC078EB97F78FB2ABC6B2825A1FE57F783DF2BEE85336CC",  # 团队token:D49……
+    "Authorization": "Bearer black_myth_wukong",  # 团队token:D49……
 }
 
 
@@ -79,7 +79,7 @@ def get_legal_document_list(related_company: str, need_fields: list = None):
 def glm4_create_1(max_attempts, messages):
     for attempt in range(max_attempts):
         response = client.chat.completions.create(
-            model="glm-4-0520",  # 填写需要调用的模型名称
+            model="glm-4-plus",  # 填写需要调用的模型名称
             messages=messages,
             # tools=tools,
         )

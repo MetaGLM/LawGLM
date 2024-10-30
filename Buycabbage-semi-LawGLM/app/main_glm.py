@@ -2,7 +2,6 @@ import audit_agent
 import suzhuang_agent
 import sbaogao_agent
 import run_v2
-import task_decomposition_v1
 import tools
 import API_diaoyong
 import run_v6
@@ -20,48 +19,6 @@ def get_answer_2(question):
     except Exception as e:
         print(f"方法2执行时发生错误: {e}")
         return "方法2无法回答，出现了错误。"
-
-
-def get_answer_3(question):
-    try:
-        print(f"尝试使用方法3回答问题: {question}")
-        tools_all = tools.tools_all
-        answer = task_decomposition_v1.sub_answer(question, tools_all)
-        answer_a = API_diaoyong.API_diaoyong_agent(question, answer)
-        return answer_a
-    except Exception as e:
-        print(f"方法3执行时发生错误: {e}")
-        return "方法3无法回答，出现了错误。"
-
-
-def get_answer_6(question):
-    try:
-        print(f"尝试使用方法6回答问题: {question}")
-        answer_a, _ = run_v6.run_conversation_xietong(question)
-        answer_a = str(answer_a)
-        answer_a = (
-            answer_a.replace("全部完成，答案如下：", "")
-            .replace("全部完成，答案如下", "")
-            .replace("`", "")
-            .replace("<>：", "")
-        )
-        return answer_a
-    except Exception as e:
-        print(f"方法3执行时发生错误: {e}")
-        return "方法3无法回答，出现了错误。"
-
-
-def get_answer_7(question):
-    try:
-        print(f"尝试使用方法6回答问题: {question}")
-        last_answer, messages_1 = run_v6.run_conversation_xietong(question)
-        text = run_v6.run_conversation_tiqu(messages_1)
-        return text
-    except Exception as e:
-        print(f"方法3执行时发生错误: {e}")
-        return "方法3无法回答，出现了错误。"
-
-
 def get_answer_8(question):
     try:
         print(f"尝试使用方法8回答问题: {question}")
@@ -123,4 +80,5 @@ def main_answer(question):
 
 
 if __name__ == "__main__":
-    print(str(replace_date_format("'")))
+
+    main_answer('保定市天威西路2222号地址对应的省市区县分别是？')

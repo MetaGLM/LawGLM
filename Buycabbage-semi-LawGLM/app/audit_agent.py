@@ -15,14 +15,14 @@ client = ZhipuAI()
 domain = "https://comm.chatglm.cn"
 headers = {
     "Content-Type": "application/json",
-    "Authorization": "Bearer 3BC078EB97F78FB2ABC6B2825A1FE57F783DF2BEE85336CC",
+    "Authorization": "Bearer black_myth_wukong",
 }
 
 
 def glm4_create_audit(max_attempts, messages):
     for attempt in range(max_attempts):
         response = client.chat.completions.create(
-            model="glm-4-0520",  # 填写需要调用的模型名称
+            model="glm-4-plus",  # 填写需要调用的模型名称
             messages=messages,
         )
         if "```python" in response.choices[0].message.content:
@@ -35,7 +35,7 @@ def glm4_create_audit(max_attempts, messages):
 # 调用glm4模型
 def glm4_create_model_ensembling(messages):
     response = client.chat.completions.create(
-        model="glm-4-0520",  # 填写需要调用的模型名称#GLM-4
+        model="glm-4-plus",  # 填写需要调用的模型名称#GLM-4
         messages=messages,
     )
     # tools=tools)

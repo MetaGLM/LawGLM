@@ -40,7 +40,7 @@ def find_json(text):
 # 调用glm4模型
 def glm4_create_gh(messages):
     response = client.chat.completions.create(
-        model="glm-4-0520",  # 填写需要调用的模型名称#GLM-4
+        model="glm-4-plus",  # 填写需要调用的模型名称#GLM-4
         messages=messages,
     )
     # tools=tools)
