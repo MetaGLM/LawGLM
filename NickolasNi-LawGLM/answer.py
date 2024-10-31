@@ -102,9 +102,9 @@ def run(query, tools, related_tables, update_message=True, suggested_logic_chain
 
             for _ in range(3):
                 try:
-                    response = call_glm(messages, model="glm-4-0520", tools=tools, temperature=0.11, top_p=0.11)
+                    response = call_glm(messages, model="glm-4-plus", tools=tools, temperature=0.11, top_p=0.11)
                     message, response = parse_content_2_function_call(response.choices[0].message.content, response)
-                    tokens_count += response.usage.total_token
+                    tokens_count += response.usage.total_tokens
                     messages.append(message)
                     break
                 except Exception as e:
@@ -318,11 +318,9 @@ def process_query_and_put_in_queue(all_tools, query, order_queue, update_message
         print(f"Error processing query {query['id']}: {e}")
 
 
-# 使用线程池来处理queries
 def process_queries_in_parallel(all_tools, queries, update_message=True, use_full_tools=False):
     order_queue = Queue()
     with ThreadPoolExecutor(max_workers=6) as executor:
-        # 提交任务到线程池
         futures = [
             executor.submit(
                 process_query_and_put_in_queue, all_tools, query, order_queue, update_message, use_full_tools
@@ -330,11 +328,9 @@ def process_queries_in_parallel(all_tools, queries, update_message=True, use_ful
             for query in queries
         ]
 
-        # 进度条
         for future in tqdm(as_completed(futures), total=len(queries)):
             pass  # 进度条更新
 
-    # 等待所有线程完成，并按照顺序写入结果
     results_in_order = sorted([order_queue.get() for _ in queries], key=lambda x: x[0])
     return results_in_order
 

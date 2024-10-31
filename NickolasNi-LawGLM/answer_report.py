@@ -508,12 +508,9 @@ def run(query, tools, related_tables, update_message=True, suggested_logic_chain
 
             for _ in range(3):
                 try:
-                    # response = call_glm(messages, model="glm-4-0520", tools=tools)
-                    # response = call_glm(messages, model="glm-4-0520", tools=tools, do_sample=False)
                     response = call_glm(messages, model="glm-4-0520", tools=tools, temperature=0.11, top_p=0.11)
                     message, response = parse_content_2_function_call(response.choices[0].message.content, response)
                     tokens_count += response.usage.total_tokens
-                    # messages.append(response.choices[0].message.model_dump())
                     messages.append(message)
                     break
                 except Exception as e:
@@ -521,10 +518,6 @@ def run(query, tools, related_tables, update_message=True, suggested_logic_chain
 
             try:
                 if response.choices[0].finish_reason == "tool_calls":
-                    # tools_call = response.choices[0].message.tool_calls[0]
-                    # tool_name = tools_call.function.name
-                    # args = tools_call.function.arguments
-
                     tool_name = message["tool_calls"][0]["function"]["name"]
                     args = message["tool_calls"][0]["function"]["arguments"]
                     args = utils.check_company_name(tool_name, args, logic_chain, must_contained_info)
@@ -657,11 +650,4 @@ def run(query, tools, related_tables, update_message=True, suggested_logic_chain
     if retry_index == 10:
         return must_contained_info, tokens_count, messages, response, response.choices[0].message.content
     else:
-        # final_message = [
-        #     {"role": "system", "content": "你是一个法律专家，请根据你的专业知识回答用户的问题"},
-        #     {"role": "user", "content": query}
-        # ]
-        # response = call_glm(final_message)
-        # return [], tokens_count, [{"content": response.choices[0].message.content, "role": "assistant"}], response
-
         return must_contained_info, tokens_count, [{"content": query, "role": "assistant"}], query, query + "抱歉"
