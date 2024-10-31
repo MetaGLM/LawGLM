@@ -1,0 +1,86 @@
+PLAN
+###
+问题:XX公司涉及的案件中，起诉时间发生于YY年发生的民事初审案件有几次？案号分别是？
+### 
+大表: LegalDoc
+###
+字段: 关联公司，日期，案号，标题
+###
+{{
+    "id1": {{"task_id": "id1",
+            "task_description": "根据公司XX名称查询该公司作为原告的所有涉诉案件信息(结果含多条数据)，",
+            "tools": ["get_company_involved_cases_info_service"],
+            "previous_tasks": []}},
+     "id2": {{
+        
+            "previous_tasks": ["id1"],
+            "task_description": "根据公司XX的所有涉诉案件中筛选出起诉时间发生于YY年的一审民事案件，记录案件次数和案号(结果含多条数据)"
+            "task_id": "id2",
+            "tools": []
+         }}
+}}
+
+
+###
+
+
+CODER_1
+###
+问题: 从公司XX的所有涉诉案件中筛选出起诉时间发生于YY年的一审民事案件，记录案件次数和案号(结果含多条数据)
+### 
+调用工具：get_company_involved_cases_info_service
+### 
+前置任务保存路径: ./cache/XXX/X_id1_get_company_involved_cases_info_service.csv
+### 
+任务保存路径：./cache/0/0_id2
+###
+字段：涉诉案件，起诉时间，案件次数，案号， 一审民事
+
+###
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import sys 
+import warnings
+warnings.filterwarnings('ignore')
+
+
+
+try:
+
+    ###任务编号id1的结果路径
+    id1_result_path = './cache/XXX/X_id1_get_company_involved_cases_info_service.csv'
+
+    ### 当前任务工具调用后的保存路径
+    id2_result_path = './cache/0/0_id2'
+
+
+    company_name = "XX公司"
+    cases_info = pd.read_csv(id1_result_path)
+
+    cases_info = get_company_involved_cases_info_service(company_name=company_name)
+    if cases_info.shape[0] == 0:
+        print("没有找到与该公司相关的涉诉案件信息。")
+        sys.exit()
+
+    # 筛选出2020年发生的民事初审案件
+    filtered_cases_df = cases_info[(cases_info['日期'].str.contains('2020')) & 
+                                (cases_info['标题'].str.contains('一审民事'))]
+
+    # 记录案件次数和案号
+    case_count = filtered_cases_df.shape[0]
+    case_numbers = filtered_cases_df['案号'].tolist()
+
+
+
+    # 打印信息
+    print(f"2020年发生的民事初审案件数量为：{case_count}")
+    # 保存结果
+    filtered_cases_df.to_csv(id2_result_path, index=False)
+    print(f"案号信息已保存至：{id2_result_path}")
+    print(f"详细信息：{filtered_cases_df.info()}")
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+
+###

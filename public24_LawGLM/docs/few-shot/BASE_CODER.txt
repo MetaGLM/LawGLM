@@ -1,0 +1,760 @@
+PLAN
+###
+问题: None
+### 
+大表: None
+###
+字段: None
+###
+{{"id1": {{"task_id": "id1",
+  "task_description": "根据案号XX号查询被告公司名称____",
+  "tools": ["get_legal_document_service"],
+  "previous_tasks": []}},
+ "id2": {{"task_id": "id2",
+  "task_description": "根据被告公司名称查询该公司是否为上市公司以及相关信息,如果被告不是上市公司，根据被告公司名称查询其统一社会信用代码",
+  "tools": ["get_listed_company_info_service","get_company_register_service"],
+  "previous_tasks": ["id1"]}}
+}}
+
+
+CODER_1
+###
+问题: 筛选XX公司中涉案金额最高的案件信息____
+### 
+调用工具：get_company_involved_cases_info_service
+### 
+前置任务保存路径: ./cache/XXX/X_id4_get_listed_sub_company_info_service_by_parent_company_name.csv
+### 
+任务保存路径：./cache/0/1_id3_get_company_involved_cases_info_service.csv
+###
+字段：涉案金额, 涉诉案件, 最高
+###
+
+from services.all_tools_service_register import *
+import pandas as pd
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+
+    ###任务编号id4的结果路径
+    id2_result_path = './cache/XXX/X_id4_get_listed_sub_company_info_service_by_parent_company_name.csv'
+
+    ### 当前任务工具调用后的保存路径
+    id3_result_path = './cache/0/1_id3_get_company_involved_cases_info_service.csv'
+
+
+    # 读取id1任务的结果
+    company_name_info = pd.read_csv(id1_result_path) 
+    company_name = company_name_info['公司名称'][0]
+    #get_company_involved_cases_info_service函数调用后保存路径
+    save_path = './cache/0/1_id5_get_company_involved_cases_info_service.csv'
+
+    # 读取已有中间结果
+    cases_info = get_company_involved_cases_info_service("XX公司")
+    # 筛选涉案金额最高的案件信息
+    max_amount_case = cases_info[cases_info['涉案金额'] == cases_info['涉案金额'].max()]
+
+    # 保存筛选结果
+    
+    max_amount_case.to_csv(save_path, index=False)
+
+    print(f"涉案金额最高的案件信息保存地址为：{save_path}")
+    print(f"详细信息：{max_amount_case.info()}")
+
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+###
+
+Coder_2 
+###
+问题: 查询XX公司所有子公司的统一社会信用代码, 注册地址(含多条结果)
+### 
+调用工具：get_listed_company_info_service, get_company_register_service
+### 
+前置任务保存路径: ./cache/XXX/X_id4_get_listed_sub_company_info_service_by_parent_company_name.csv
+### 
+任务保存路径：./cache/0/1_id5_get_listed_company_info_service.csv, ./cache/0/1_id5_get_company_register_service.csv
+###
+字段：子公司, 统一社会信用代码, 注册地址
+###
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+
+    ###任务编号id4的结果路径
+    id4_result_path = './cache/XXX/X_id4_get_listed_sub_company_info_service_by_parent_company_name.csv'
+
+    ### 当前任务工具调用后的保存路径
+    id5_result_path_1 = './cache/0/1_id5_get_listed_company_info_service.csv'
+    id5_result_path_2 = './cache/0/1_id5_get_company_register_service.csv'
+
+
+    # 读取id4任务的中间结果
+    sub_companies_info = pd.read_csv(id4_result_path)
+    
+    
+    # 获取子公司名称列表
+    sub_companies_names = sub_companies_info['子公司名称'].tolist()
+    
+    # 调用工具查询统一社会信用代码和注册地址,当子公司不是上市公司时，注册地址使用公司的企业地址
+    def get_register_info(sub_company_name):
+        register_info = get_company_register_service(company_name=sub_company_name)
+        listed_info = get_listed_company_info_service(company_name=sub_company_name)
+        return pd.Series({{
+            '子公司名称': sub_company_name,
+            '统一社会信用代码': register_info['统一社会信用代码'][0],
+            '注册地址': listed_info['注册地址'][0] if listed_info[0] !=0 else register_info['企业地址'][0]
+        }})
+    
+    # 使用apply函数批量查询并获取结果
+    sub_companies_info = sub_companies_info.apply(lambda row: get_register_info(row['全资子公司名称']), axis=1)
+    
+    # 将列表中的每个Series对象合并为一个DataFrame
+    sub_companies_register_info = pd.DataFrame(sub_companies_register_info)
+    
+    
+    sub_companies_register_info.to_csv(id5_result_path_1)
+    
+    # 打印保存路径和文件信息
+    print(f"全资子公司的统一社会信用代码和注册地址信息保存地址为：{id5_result_path_1}")
+    print(f"详细信息：{sub_companies_register_info.info()}")
+    
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+
+
+
+Coder_3
+###
+问题: 查询XX公司的注册地址，办公地址(含多条结果)
+### 
+调用工具：get_listed_company_info_service, get_company_register_service
+### 
+前置任务保存路径: 
+### 
+任务保存路径：./cache/0/1_id1_get_listed_company_info_service.csv, ./cache/0/1_id1_get_company_register_service.csv
+###
+字段：公司,注册地址,办公地址
+###
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+    
+    company_name = 'XX公司'
+
+    ### 当前任务工具调用后的保存路径
+    id1_result_path_1 = './cache/0/1_id1_get_listed_company_info_service.csv'
+    id1_result_path_2 = './cache/0/1_id1_get_company_register_service.csv'
+
+    # 获取公司上市信息信息
+    company_listed_info = get_listed_company_info_service(company_name=company_name)
+    company_registered_info = get_company_register_service(company_name=company_name)
+    if company_listed_info.shape[0] == 0:
+           registered_address = company_registered_info['企业地址][0]
+           work_address = company_registered_info['企业地址'][0]
+    else:
+           registered_address = company_listed_info['注册地址'][0]
+           work_address = company_listed_info['办公地址'][0]
+    #获取公司登记信息
+     
+    # 将列表中的每个Series对象合并为一个DataFrame
+    companies_address_info = pd.DataFrame([["XX公司",registered_address,work_address]], columns=["公司名称", "注册地址","办公地址"])
+
+    # 保存结果
+    companies_address_info.to_csv(id1_result_path_1, index=False)
+    
+    # 打印保存路径和文件信息
+    
+    
+    # 打印保存路径和文件信息
+    print(f"XX公司的注册地址为: {registered_address}")
+    print(f"XX公司的办公地址为: {work_address}")
+    print(fXX公司的注册地址和办公地址信息保存地址为：{id1_result_path_1}")
+    print(f"详细信息：{companies_address_info.info()}")
+    
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+###
+
+
+CODER_4
+###
+问题: 根据XX有限公司全称查询该公司的涉案(结果含多条数据),计算出该公司的涉案次数为____,筛选出YY年作为被起诉人的次数为____，总金额为____
+### 
+调用工具：get_company_involved_cases_info_service
+### 
+前置任务保存路径: ./cache/XXX/X_id1_get_company_register_service.csv
+### 
+任务保存路径：./cache/0/0_id2_get_company_involved_cases_info_service.csv
+###
+字段：公司全称,涉案,涉案次数,被起诉人,总金额
+###
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+
+    ###任务编号id1的结果路径
+    id1_result_path = './cache/XXX/X_id1_get_company_register_service.csv'
+
+    ### 当前任务工具调用后的保存路径
+    id2_result_path = './cache/0/1_id2_get_company_involved_cases_info_service.csv'
+
+
+    # 读取id1任务的结果
+    company_name_info = pd.read_csv(id1_result_path) 
+    company_name = company_name_info['公司名称'][0]
+
+    # 调用工具查询公司的涉案信息
+    involved_cases_info = get_company_involved_cases_info_service(company_name=company_name)
+    if involved_cases_info.shape[0] == 0:
+        print("工具调用错误，请检查输入参数是否正确")
+        sys.exit()
+
+
+    # 计算涉案次数
+    case_count = involved_cases_info.shape[0]
+
+
+    # 筛选YY年的数据
+    involved_cases_YY_df = involved_cases_info[involved_cases_info['日期'].str.contains('2020')]
+
+    # 筛选被起诉人的案件
+    involved_cases_YY_as_defendant_df = involved_cases_2020_df[involved_cases_2020_df['被告'].str.contains(company_name)]
+
+    # 计算被起诉人的次数和总金额
+    times_sued = involved_cases_YY_as_defendant_df.shape[0]
+    total_amount = involved_cases_YY_as_defendant_df['涉案金额'].sum()
+
+    # 保存结果
+    result_df = pd.DataFrame([[times_sued, total_amount]], columns=['被起诉次数', '总金额'])
+
+    result_df.to_csv(id2_result_path)
+
+    print(f"XX股份有限公司的涉案次数为{case_count}")
+    print(f"YY年作为被起诉人的次数为{times_sued}，总金额为{total_amount}")
+    print(f"结果保存地址为：{id2_result_path}")
+    print(f"详细信息：{result_df.info()}")
+
+except Exception as e:
+    # 捕获详细错误信息
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+
+###
+
+
+CODER_5
+###
+问题: 根据XX公司的XX地址查询该地址对应的省市区县信息
+### 
+调用工具：get_address_info_service
+### 
+前置任务保存路径: ./cache/XXX/X_id1_get_lawfirm_info_service.csv
+### 
+任务保存路径：./cache/0/0_id3_get_address_info_service.csv
+###
+字段：地址,省市,区县
+###
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+
+    ###任务编号id2的结果路径
+    id2_result_path = './cache/XXX/X_id1_get_lawfirm_info_service.csv'
+
+    ### 当前任务工具调用后的保存路径
+    id3_result_path = './cache/0/0_id3_get_address_info_service.csv'
+
+    # 读取id2任务的结果
+    lawfirm_address = pd.read_csv(id2_result_path)['XXX地址'][0]
+    # 调用工具获取省市区县信息
+    address_info = get_address_info_service(address=lawfirm_address)
+    
+    # 检查工具返回结果
+    if address_info.empty:
+        print("工具调用错误，请检查输入参数是否正确")
+    else:
+        # 保存结果到CSV文件
+        address_info.to_csv(id3_result_path, index=False)
+        
+        # 打印保存路径和详细信息
+        print(f"地址XXX对应的省市区县信息保存地址为：{id3_result_path}")
+        print(f"详细信息：{address_info.info()}")
+except Exception as e:
+    # 捕获详细错误信息
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)###
+
+
+
+
+CODER_6
+###
+问题: 根据XX公司涉案的所有审理法院名称查询法院的级别(结果含多条数据)，筛选出最基层的法院名(结果含多条数据),再通过法院名查询法院的成立日期(结果含多条数据)
+### 
+调用工具：get_court_code_service, get_court_info_service
+### 
+前置任务保存路径: ./cache/XXX/X_id2_get_court_info_service.csv
+### 
+任务保存路径：./cache/0/1_id3_get_court_info_service.csv, ./cache/0/1_id3_get_court_code_service.csv
+###
+字段：法院名称,法院级别,基层,成立日期
+###
+
+from services.all_tools_service_register import *
+import pandas as pd
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+    
+    ###任务编号id2的结果路径
+    id2_result_path = './cache/XXX/X_id2_get_court_info_service.csv'
+
+    ### 当前任务工具调用后的保存路径
+    id3_result_path_1 = './cache/0/1_id3_get_court_info_service.csv'
+    id3_result_path_2 = './cache/0/1_id3_get_court_code_service.csv'
+    
+
+    # 读取id2任务的结果
+    court_code_info = pd.read_csv(id2_result_path) 
+
+    # 筛选出最基层的法院（法院级别为'基层法院'）
+    grassroot_court = court_code_info[court_code_info['法院级别'].str.contains('基层法院')]
+    grassroot_court.to_csv(id3_result_path_1, index=False)
+    print(f"最基层的法院信息已保存到：{id3_result_path_1}")
+    print(f"详细信息, {grassroot_court.info()}")
+
+    if grassroot_court.shape[0] == 0:
+        print("没有找到基层法院的信息")
+        sys.exit()
+
+    # 获取最基层的法院名称
+    grassroot_court_name = grassroot_court['法院名称'][0]
+
+    # 使用get_court_info_service工具查询该法院的成立日期
+    court_info = get_court_info_service(court_name=grassroot_court_name)
+    
+    if court_info.shape[0] == 0:
+        print("未能查询到法院的详细信息")
+        sys.exit()
+
+    # 获取成立日期
+    establishment_date = court_info['成立日期'][0]
+
+    # 打印结果
+    print(f"最基层的法院名称是：{grassroot_court_name}")
+    print(f"该法院的成立日期是：{establishment_date}")
+
+    # 保存结果
+    court_info.to_csv(id3_result_path_2, index=False)
+    print(f"法院详细信息保存地址为：{id3_result_path_2}")
+    print(f"详细信息：{court_info.info()}")
+
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+
+
+###
+
+
+
+CODER_7
+###
+问题: 问题中串行了几类API？串行了几次？
+### 
+调用工具：
+### 
+前置任务保存路径: ./cache/XXX/XX_id1_XXX.csv, ./cache/XXX/XX_id2_XXX.csv, ./cache/XXX/XX_id3_XXX.csv
+### 
+任务保存路径：./cache/0/1_id5.csv
+###
+字段：调用, API
+### 
+from services.all_tools_service_register import *
+import pandas as pd
+try:
+    
+    #统计任务id1,id2,di3,di4获取的所有的结果路径
+    res_file_path = ['XX_id1_XXX.csv', 'XX_id1_XXX.csv', 'XX_id2_XXX.csv','XX_id3_XXX.csv',...]
+
+    ### 当前任务工具调用后的保存路径
+    id5_result_path = './cache/0/1_id5.csv'
+    
+    # 由于每个文件路径都是调用API所获得的结果
+    # 因此，每个文件中API类别数量即为调用次数
+    api_count = len(res_file_path)
+
+    # 串行了几次可以通过读取每个结果文件中数据量最少的判断, 若文件不存在则不记录
+    min_data_count = float('inf')
+    for file_path in res_file_path:
+        try:
+            data = pd.read_csv(file_path)
+            data_count = len(data)
+            if data_count < min_data_count:
+                min_data_count = data_count
+        except:
+            pass
+    serial_count = min_data_count
+
+    # 保存结果到CSV文件
+
+    api_df = pd.DataFrame([[api_count, serial_count]],columns=['调用类别', '串行次数'])
+    api_df.to_csv(id5_result_path, index=False)
+
+    # 打印调用了几类API
+    print(f"本问题调用API类别数量为：{api_count}")
+    # 打印串行次数
+    print(f"本问题API串行次数为：{serial_count}")
+    # 打印数据保存路径和串行
+    print(f"API类别数量和串行数量信息保存地址为：{id5_result_path}")
+    print(f"详细信息：{api_df.info()}。")
+
+except Exception as e:
+    # 捕获详细错误信息
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+
+###
+
+CODER_8
+###
+问题: 查询XX有限公司的母公司名称____、投资比例____和投资金额____
+### 
+调用工具：get_parent_company_info_by_child_company_name_service
+### 
+前置任务保存路径: 
+### 
+任务保存路径：./cache/62/1_id1_get_parent_company_info_by_child_company_name_service.csv
+###
+字段：母公司名称, 投资比例, 投资金额
+### 
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+
+    company_name="XX有限公司"
+
+    ### 当前任务工具调用后的保存路径
+    id1_result_path = './cache/62/1_id1_get_parent_company_info_by_child_company_name_service.csv'
+    
+    # 调用工具查询母公司信息
+    parent_company_info = get_parent_company_info_by_child_company_name_service(sub_company_name=company_name)
+    
+    # 检查工具返回结果
+    if parent_company_info.shape[0] == 0:
+        print("工具调用错误，请检查输入参数是否正确")
+        sys.exit()
+    else:
+        
+        
+        # 打印母公司名称、投资比例和投资金额
+        parent_company_name = parent_company_info['母公司全称'][0]
+        investment_ratio = parent_company_info['母公司参股比例'][0]
+        investment_amount = parent_company_info['母公司投资金额'][0]
+        print(f"XX有限公司的母公司是：{parent_company_name}")
+        print(f"被投资的比例为：{investment_ratio}")
+        print(f"投资金额为：{investment_amount}")
+        # 保存结果到CSV文件
+        parent_company_info.to_csv(save_path, index=False)
+        # 打印保存路径和详细信息
+        print(f"XX有限公司的母公司信息保存地址为：{id1_result_path}")
+        print(f"详细信息：{parent_company_info.info()}")
+except Exception as e:
+    # 捕获详细错误信息
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+###
+
+
+CODER_9
+###
+问题: 获取XX股份有限公司的子公司的所有VVV信息("VVV可为一级行业，法定代表人，'注册资本'等等公司工商信息)(含多条结果) 
+### 
+调用工具： get_company_register_service
+### 
+前置任务保存路径: ./cache/XXX/X_id1_get_listed_sub_company_info_service_by_parent_company_name.csv
+### 
+任务保存路径：./cache/0/1_id5_get_company_register_service.csv
+###
+字段：子公司, 一级行业
+### 
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+    
+    ###任务编号id1的结果路径
+    id1_result_path = './cache/XXX/X_id1_get_listed_sub_company_info_service_by_parent_company_name.csv'
+    
+    ### 当前任务工具调用后的保存路径
+    id2_result_path = './cache/0/1_id5_get_company_register_service.csv'
+    
+    sub_companies_info = pd.read_csv(id1_result_path)
+
+    # 获取子公司详细信息，包括VVV
+    def get_sub_company_info(row):
+        try:
+            sub_company_name = row['子公司名称']
+            # 调用工具查询公司注册信息
+            company_register_info = get_company_register_service(company_name=sub_company_name)
+            # 获取一级行业信息
+            primary_industry = company_register_info['VVV'][0]
+            return primary_industry  # 直接返回一级行业信息，而不是一个pd.Series
+        except Exception as e:
+            print(f"获取子公司 {sub_company_name} 的信息时发生错误: {e}")
+            return None  # 返回None表示无法获取信息
+
+    # 使用apply函数批量查询并获取结果
+    sub_companies_info['VVV'] = sub_companies_info.apply(get_sub_company_info, axis=1)
+
+    # 保存结果
+
+    sub_companies_info.to_csv(id2_result_path, index=False)
+
+    # 打印保存路径和文件信息
+    print(f"XX股份有限公司子公司的详细信息，包括VVV，保存地址为: {id2_result_path}")
+    print(f"详细信息: {sub_companies_info.info()}")
+except Exception as e:
+    # 捕获详细错误信息
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+###
+
+
+
+
+
+CODER_10
+###
+问题: 获取XX公司所有涉案案件中的审理法院VVV基本信息("VVV可为"法院地址", "法院负责人"等等审理法院信息)(含多条结果) 
+### 
+调用工具： get_court_name_service_by_reference, get_court_info_service
+### 
+前置任务保存路径: ./cache/XXX/X_id2_get_company_involved_cases_info_service.csv
+### 
+任务保存路径：./cache/0/1_id5_get_court_name_service_by_reference.csv, ./cache/0/1_id5_get_address_info_service.csv  
+###
+字段：子公司, 一级行业
+### 
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+    
+    ###任务编号id1的结果路径
+    id2_result_path = './cache/XXX/X_id2_get_company_involved_cases_info_service.csv'
+    
+    ### 当前任务工具调用后的保存路径
+    id3_result_path_1 = './cache/0/1_id5_get_court_name_service_by_reference.csv'
+    id3_result_path_2 = './cache/0/1_id5_get_address_info_service.csv'
+
+    # 读取id1任务的结果   
+    cases_info = pd.read_csv(id2_result_path)
+
+    # 获取XX公司所有涉案案件的审理法院名称
+    def get_court_name(row):
+        try:
+            reference = row['案号']
+            # 调用工具查询案件的审理法院
+            court_name = get_court_name_service_by_reference(reference=reference)['审理法院名称']
+            return court_namey  
+        except Exception as e:
+            print(f"获取 {reference} 的信息时发生错误: {e}")
+            return None  # 返回None表示无法获取信息
+
+    # 使用apply函数批量查询并获取结果
+    cases_info['审理法院名称'] = cases_info.apply(get_court_name, axis=1)
+    print(f"XX股份有限公司子公司的审理法院名称信息，保存地址为: {id3_result_path_1}")
+    print(f"详细信息: {cases_info.info()}")
+    # 保存结果
+    cases_info.to_csv(id3_result_path_1, index=False)
+
+
+    def get_court_info_by_court_name(court_name):
+        try:
+            # 调用工具查询法院的详细信息
+            court_info = get_address_info_service(court_name=court_name)['VVV'][0]
+            return court_info
+        except Exception as e:
+            print(f"获取 {court_name} 的信息时发生错误: {e}")
+            return None  # 返回None表示无法获取信息
+
+    # 使用apply函数批量查询并获取结果
+    cases_info['VVV'] = cases_info['审理法院名称'].apply(get_court_info_by_court_name)
+    # 保存结果
+    cases_info.to_csv(id3_result_path_2, index=False)
+    # 打印保存路径和文件信息
+    print(f"X股份有限公司子公司的VVV信息，保存地址为: {id3_result_path_2}")
+    print(f"详细信息: {cases_info.info()}")
+except Exception as e:
+    # 捕获详细错误信息
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+###
+
+
+
+CODER_12
+###
+问题: 查询XXX公司的涉案的总受理费是多少？案由最多的是？
+###
+调用工具： get_company_involved_cases_info_service
+### 
+前置任务保存路径: 
+### 
+任务保存路径：./cache/0/1_id2_get_company_involved_cases_info_service.csv
+###
+字段： 子公司, 案件, 受理费
+###
+from services.all_tools_service_register import *
+import pandas as pd
+import traceback
+import sys 
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+
+    ### 当前任务工具调用后的保存路径
+    id2_result_path = './cache/0/1_id2_get_company_involved_cases_info_service.csv'
+    
+    ### 获取公司信息
+    company_name = 'XXX公司'
+    print(company_name)
+    ### 获取公司涉案信息
+    cases_info = get_company_involved_cases_info_service(company_name)
+    total_fee = cases_info['受理费'].sum()
+    most_frequent_cause = cases_info['案由'].value_counts().idxmax()
+    answer_info = pd.DataFrame([[company_name, total_fee, most_frequent_cause]],columns=['公司名称', '涉案总受理费', '案由最多'])
+    answer_info.to_csv(id2_result_path, index=False)
+    print(f"XX公司涉案总受理费: {total_fee}")
+    print(f"XX公司案由最多: {most_frequent_cause}")
+    print(f"公司涉案信息，保存地址为: {id2_result_path}")
+    print(f"详细信息: {answer_info.info()}")
+
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+###
+
+CODER_13
+###
+问题: 查询XXX案号的受理费是多少？承担方是谁?
+###
+调用工具： get_legal_document_service
+### 
+前置任务保存路径:
+### 
+任务保存路径：./cache/1/0_id1_get_legal_document_service.csv
+###
+字段： 子公司, 案件, 受理费
+###
+from services.all_tools_service_register import *
+import pandas as pd
+import traceback
+import sys 
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+
+    ### 当前任务工具调用后的保存路径
+    id1_result_path = './cache/1/0_id1_get_legal_document_service.csv'
+
+    ### 获取公司信息
+    reference = 'XXX案号'
+    ### 获取公司涉案信息
+    cases_info = get_legal_document_service(reference=reference)
+    case_fee = cases_info['受理费']
+    case_res = case_info['判决结果']
+    answer_info = pd.DataFrame([[company_name, case_fee, case_res]],columns=['案号', '受理费', '判决结果'])
+    answer_info.to_csv(id1_result_path, index=False)
+   print(f"受理费: {case_fee}")
+    print(f"承担方请看判决结果: {case_res}")
+    print(f"详细信息: {answer_info.info()}")
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+###
+
+CODER_14
+###
+问题: 根据公司代码300674查询公司注册信息，包括法定代表人、工商电话和注册资本
+###
+调用工具： get_company_info_service_by_code, get_company_register_service
+### 
+前置任务保存路径:
+### 
+任务保存路径：./cache/222/1_id1_get_company_register_service.csv
+###
+字段： 公司代码, 注册信息, 法定代表人, 工商电话, 注册资本
+###
+from services.all_tools_service_register import *
+import pandas as pd
+import traceback
+import warnings
+warnings.filterwarnings('ignore')
+
+# 任务编号id1的保存路
+id1_result_path_1 = './cache/222/1_id1_get_company_register_service.csv'
+
+try:
+    # 根据公司代码查询公司注册信息
+    company_code = '300674'
+    company_info = get_company_info_service_by_code(company_code)
+    company_name = company_info["公司名称"][0]
+    print(company_name)
+    company_register = get_company_register_service(company_name)
+    
+    # 保存查询结果
+    company_register.to_csv(id1_result_path_1 if company_register.shape[0] != 0 else id1_result_path_2, index=False)
+    
+    # 打印保存路径和文件信息
+    print(f"公司代码{company_code}的注册信息保存地址为: {id1_result_path_1}")
+    print(f"详细信息: {company_info.info()}")
+    
+    # 如果查询到信息，则输出法定代表人、工商电话和注册资本
+    if company_register.shape[0] != 0:
+        legal_representative = company_register['法定代表人'][0]
+        business_phone = company_register['联系电话'][0]
+        registered_capital = float(company_register['注册资本'][0]) / 100000000
+        print(f"法定代表人: {legal_representative}")
+        print(f"工商电话: {business_phone}")
+        print(f"注册资本: {registered_capital:.2f}亿元")
+    
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+###

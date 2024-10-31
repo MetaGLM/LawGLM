@@ -1,0 +1,22 @@
+PLAN
+###
+问题:XX有限公司对应的公司是否被限制高消费？如果是被限制高消费的最大涉案金额为（保留1位小数）？该案件对应的案号为？该案件的审理法院是？该法院的地址所在区县是？
+### 
+大表: XzgxfInfo, CourtInfo, AddrInfo
+###
+字段: 限制高消费企业名称，涉案金额，案号，执行法院，法院名称， 法院地址，区县
+###
+{{"id1": {{"task_id": "id1",
+  "task_description": "根据公司名称查询XX有限公司是否被限制高消费以及相关案件信息，从查询结果中筛选出最大的涉案金额____，保留1位小数，并记录对应的案号____及其审理法院____（审理法院即为执行法院）",
+  "tools": ["get_company_xzgxf_by_company_name_service"],
+  "previous_tasks": []}},
+ "id2": {{"task_id": "id2",
+  "task_description": "根据审理法院名称查询法院地址所在的区县____",
+  "tools": ["get_court_info_service", "get_address_info_service"],
+  "previous_tasks": ["id1"]}}
+}}
+
+###
+
+
+

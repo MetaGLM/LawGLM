@@ -1,0 +1,32 @@
+PLAN
+###
+问题:XX股份有限公司的法人信息与总经理是否相同？该公司是否被限制高消费了？如果被限制高消费的话，最高涉案金额为多少元？该案件的案号为？调用了多少类API？
+### 
+大表:CompanyInfo, XzgxfInfo
+###
+字段:公司名称, 法人代表, 总经理, 限制高消费企业名称, 涉案金额, 案号
+###
+{{"id1": {{"task_id": "id1",
+  "task_description": "查询XX股份有限公司的法人代表和总经理信息是否相同",
+  "tools": ["get_listed_company_info_service"],
+  "previous_tasks": []}},
+ "id2": {{"task_id": "id2",
+  "task_description": "查询XX股份有限公司是否被限制高消费",
+  "tools": ["get_company_xzgxf_by_company_name_service"],
+  "previous_tasks": []}},
+ "id3": {{"task_id": "id3",
+  "task_description": "如果XX股份有限公司被限制高消费，查询最高涉案金额____及对应的案号____",
+  "tools": ["get_company_xzgxf_by_company_name_service"],
+  "previous_tasks": ["id2"]}},
+ "id4": {{"task_id": "id4",
+  "task_description": "统计调用的API类别数量____",
+  "tools": [],
+  "previous_tasks": ["id1", "id2", "id3"]}}
+}}
+
+###
+
+
+
+
+

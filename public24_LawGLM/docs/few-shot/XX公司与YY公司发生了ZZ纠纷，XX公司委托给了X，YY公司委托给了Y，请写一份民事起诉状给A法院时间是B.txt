@@ -1,0 +1,13 @@
+PLAN
+###
+问题: XX公司与YY公司发生了ZZ纠纷，XX公司委托给了X，YY公司委托给了Y，请写一份民事起诉状给A法院时间是B
+### 
+大表: CompanyInfo, CompanyRegister, LawfirmInfo, CourtInfo
+###
+字段: 关联公司，法院，起诉状
+###
+{{"id1": {{"task_id": "id1",
+  "task_description": "XX公司与YY公司发生了ZZ纠纷，XX公司委托给了X，YY公司委托给了Y，请写一份民事起诉状给A法院时间是B",
+  "tools": ["get_sue_base_info_serivce", "get_sue_serivce"],
+  "previous_tasks": []}},
+}}

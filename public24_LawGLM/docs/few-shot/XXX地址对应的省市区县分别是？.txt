@@ -1,0 +1,16 @@
+PLAN
+###
+问题: XXX地址对应的省市区县分别是？
+### 
+大表:  AddrInfo
+###
+字段: 地址,省份,城市,区县
+###
+{{"id1": {{"task_id": "id1",
+  "task_description": "根据地址XXX查询该地址对应的省份是___, 城市是___, 区县是___",
+  "tools": ["get_address_info_service"],
+  "previous_tasks": []}}
+}}
+
+
+###

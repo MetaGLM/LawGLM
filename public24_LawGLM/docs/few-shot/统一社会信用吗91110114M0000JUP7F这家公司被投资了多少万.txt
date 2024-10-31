@@ -1,0 +1,22 @@
+PLAN
+###
+问题:统一社会信用码为91110114M0000JUP7F这家公司被投资了多少万
+### 
+大表: 
+###
+字段: XXX
+### 
+{{
+    "id1":{{
+            "task_id"："id1",
+            "task_description":  "根据1110114M0000JUP7F统一社会信用代码公司查询其公司名称",    
+            "tools":["get_company_name_by_uniform_social_code_service"],   
+            "previous_tasks": [] 
+    }},
+     "id2":{{
+            "task_id"："id2",
+            "task_description": "根据1110114M0000JUP7F所查出来的公司名称查询它被投资了多少万",
+            "tools":[""get_parent_company_info_by_child_company_name_service"],        
+            "previous_tasks": ["id1"]
+    }}
+}}

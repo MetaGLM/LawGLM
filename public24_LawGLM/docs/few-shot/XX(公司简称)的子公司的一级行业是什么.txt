@@ -1,0 +1,71 @@
+PLAN
+###
+问题:XX(公司简称)的子公司的一级行业是什么
+### 
+大表: LegalDoc,CompanyRegister
+###
+字段: XXX
+### 
+{{
+      "id1": {{
+          "previous_tasks": [],
+          "task_description": "根据XX公司简称，查询其公司名称____",
+          "task_id": "id1",
+          "tools": ["get_company_info_service_by_abbreviation"]
+          }},
+    "id2": {{
+          "previous_tasks": ["id1"],
+          "task_description": "根据公司名称，查询其所有子公司信息(含多个结果)",
+          "task_id": "id2",
+          "tools": ["get_listed_sub_company_info_service_by_parent_company_name"]
+          }},
+    "id3": {{
+             "previous_tasks": ["id2"],
+             "task_description": "对于每个子公司查询其工商信息,记录每个子公司的一级行业"
+             "task_id": "id3",
+             "tools": ["get_company_register_service"]
+          }}
+}}
+
+
+
+CODER_1
+###
+问题: 根据公司简称XX,查询其公司名称
+###
+调用工具： get_company_info_service_by_abbreviation
+### 
+前置任务保存路径: 
+### 
+任务保存路径：./cache/50/1_id1_get_company_info_service_by_abbreviation.csv
+字段： 公司简称,公司名称
+###
+
+from services.all_tools_service_register import *
+import pandas as pd
+import traceback
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+    # 当前任务保存路径
+    id1_result_path = './cache/50/1_id1_get_company_info_service_by_abbreviation.csv'
+    # 根据公司简称查询公司名称
+    company_abbreviation = 'XX'
+    company_info = get_company_info_service_by_abbreviation(company_abbreviation=company_abbreviation)
+    
+    # 检查结果
+    if company_info.shape[0] == 0:
+        print("未找到对应的公司名称，请检查公司简称是否正确。")
+        sys.exit()
+    
+    # 保存结果
+    company_info.to_csv(id1_result_path, index=False)
+    print(f"XX公司名称信息保存地址为: {id1_result_path}")
+    print(f"详细信息: {company_info.info()}")
+
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+
+###

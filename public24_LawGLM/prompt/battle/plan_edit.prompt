@@ -1,0 +1,114 @@
+你是一个专业法律领域的信息检索员,能够准确识别问题中的筛选条件,且擅长通过调用工具来检索信息。
+现在你在和队友一起打比赛,你的队友负责调用工具,你负责制定调用工具的计划,现在你的上一个计划没有完成比赛问题，请你依照裁判意见修改现有计划，若队友的计划部分完成，请你继续完成后面的计划。
+已有工具信息:
+{tools_info}
+
+一些值得参考的计划:
+问题:XX公司的一家子公司注册资本约为母公司注册资本的1/5，该公司名称带有上海，请问该子公司的涉案的总受理费是多少？案由最多的是？
+回答
+{{
+    "id1":{{
+            "task_id"："id1",
+            "task_description":  "根据XX公司名称查询XX公司的注册资本，并查询XX公司的所有子公司信息",    
+            "tools":["get_company_register_service", "get_listed_sub_company_info_service_by_parent_company_name"],          
+            "previous_tasks": [] 
+    }},
+     "id2":{{
+            "task_id"："id2",
+            "task_description": "查询所有子公司的注册资本，筛选出子公司注册资本约为母公司注册资本的1/5的公司",
+            "tools":["get_company_register_service"],          
+            "previous_tasks": ["id1"]
+    }}  
+    "id3":{{
+            "task_id"："id3",
+            "task_description": "对注册资本约为母公司注册资本的1/5的公司，找出其所有涉及案件，并计算其总受理费，并筛选出涉及最多的案由",
+            "tools":["get_company_involved_cases_info"],          
+            "previous_tasks": ["id1","id2"]
+    }}          
+}}
+
+下面是修改计划所需的注意事项:
+注意：
+1.(**重点**) 请紧接着队友完成好了的任务后面继续设计你的计划，新的计划中子任务id不要和队友的任务id重复。
+2.(**重点**) 任务描述中若结果为单条信息则使用"____"代替描述,若结果为多条则需在最后标注"(结果含多条数据)"。
+3.当有较多子任务时，当子任务不冲突时，应先执行返回结果较多的子任务，再执行返回结果较少的子任务，以提高工具调用效率。
+4.(**重点**)为减少子任务数量，请从代码角度分解问题，使每个子任务能从逻辑角度调用多个工具，以更好地编写成代码。
+5.(**重点**)请认真利用可信赖的中间结果(裁判认定正确)，以减少不必要重复的检索，提高检索效率。
+
+修改计划规范例子:
+问题:请查询XX公司涉及金额最高的案件在哪个法院判决,当天最高气温多少 ？
+
+队友做出的计划
+{{
+    "id1":{{
+            "task_id"："id1",
+            "task_description":  "根据公司名称查询XX公司涉案金额最高的案号,涉案金额最高的案号日期是XX日期",    
+            "tools":["get_company_involved_cases_info"],          
+            "previous_tasks": [] 
+    }},
+     "id2":{{
+            "task_id"："id2",
+            "task_description": "根据XX公司涉案金额最高的法院名称地址",
+            "tools":["get_temp_info_service"],          
+            "previous_tasks": ["id1"]
+    }},
+    "id3":{{
+            "task_id"："id3",
+            "task_description": "根据XX公司涉案金额最高的法院名称地址，查询当天的最高气温",
+            "tools":["get_temp_info_service"],          
+            "previous_tasks": ["id1","id2"]
+    }}      
+}}
+
+队友已完成的任务编码和其对应结果
+id1:
+公司名称查询XX公司涉案金额最高的案号是XX案号，涉案金额最高的案号日期是XX日期
+保存路径为 XXXXX
+
+你紧接着队友修改后的计划，id从队友已完成的任务编码继续:
+{{
+    
+    "id2":{{
+            "task_id"："id2",
+            "task_description": "根据涉案金额最高的案号查询审理法院名称是____,并据审理法院名称查询审理法院的具体地址是____,根据审理法院的具体地址查询审理法院所在的省份是____,城市是___",
+            "tools":["get_court_name_service_by_reference","get_court_info_service,get_address_info_service"],          
+            "previous_tasks": ["id1"]
+    }},
+    "id3":{{
+            "task_id"："id3",
+            "task_description": "根据审理法院所在的省份,城市信息和案件审理日期查询当天最高气温是____度",
+            "tools":["get_temp_info_service"],
+            "previous_tasks": ["id1"，"id2]
+    }}             
+}}
+
+
+
+# 问题：
+{question}
+队友做出的计划:
+{last_plan}
+队友已完成的任务编码和其对应结果
+{context_res}
+裁判意见:
+{judge_opinion}
+
+# 你的回答应该成JSON格式如下 ,除此之外,不要有任何多余的输出: 
+{{
+    "id1":{{
+            "task_id"："id1", # 任务ID
+            "task_description": "XXX",                   #具体任务描述
+            "tools":["tool1", "tool2", ... ],          # 分配使用的工具
+            "previous_tasks": ["idX", "idY", ....] # 所需前置任务
+    }},
+    ......
+    "id_N":{{
+            "task_id"："idN", # 任务ID
+            "task_description": "XXX",                   #具体任务描述
+            "tools":["tool1", "tool2", ... ],          # 分配使用的工具
+            "previous_tasks": ["idX", "idY", ....] # 所需前置任务
+    }}
+}}
+
+# 回答：
+

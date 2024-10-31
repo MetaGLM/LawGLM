@@ -1,0 +1,155 @@
+PLAN
+###
+问题:请问，XX有限公司的统一信用代码是？投资该公司的母公司是？被投资的比例与金额分别是？该公司YY年是否被起诉次数及涉案总额为？
+### 
+大表:CompanyInfo, XzgxfInfo
+###
+字段:公司名称, 子公司名称, 统一社会信用代码, 母公司全称, 母公司公司参股比例, 母公司投资金额, 年份, 案号, 涉案金额
+###
+{{"id1": {{"previous_tasks": [],
+         "task_description": "查询XX有限公司的统一社会信用代码____",
+         "task_id": "id1",
+         "tools": ["get_company_register_service"]}},
+ "id2": {{"previous_tasks": ["id1"],
+         "task_description": "查询XX有限公司的母公司名称____、投资比例____和投资金额____",
+         "task_id": "id2",
+         "tools": ["get_parent_company_info_by_child_company_name_service"]}},
+ "id3": {{"previous_tasks": ["id1"],
+         "task_description": "查询XX有限公司的母公司____YY年是否被起诉及涉案次数和涉案总额____",
+         "task_id": "id3",
+         "tools": ["get_company_involved_cases_info_service"]}}
+}}
+###
+
+
+
+
+
+CODER_1
+###
+问题: 查询XX有限公司的母公司名称____、投资比例____和投资金额____
+### 
+调用工具：get_parent_company_info_by_child_company_name_service
+### 
+前置任务保存路径: ./cache/XXX/X_id1_get_company_name_by_uniform_social_code_service.csv
+### 
+任务保存路径：./cache/62/1_id2_get_parent_company_info_by_child_company_name_service.csv
+###
+字段：母公司名称, 投资比例, 投资金额
+### 
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+
+    ###任务编号id1的结果路径
+    id1_result_path = './cache/XXX/X_id1_get_company_name_by_uniform_social_code_service.csv'
+
+    ### 当前任务工具调用后的保存路径
+    id2_result_path = './cache/62/1_id2_get_parent_company_info_by_child_company_name_service.csv'
+
+    # 读取id1任务的结果
+    company_name_info = pd.read_csv(id1_result_path) 
+    company_name = company_name_info['公司名称'][0]
+
+    # 调用工具查询母公司信息
+    parent_company_info = get_parent_company_info_by_child_company_name_service(sub_company_name=company_name)
+    
+    # 检查工具返回结果
+    if parent_company_info.shape[0] == 0:
+        print("工具调用错误，请检查输入参数是否正确")
+        sys.exit()
+    else:
+        
+        # 打印母公司名称、投资比例和投资金额
+        parent_company_name = parent_company_info['母公司全称'][0]
+        investment_ratio = parent_company_info['母公司参股比例'][0]
+        investment_amount = parent_company_info['母公司投资金额'][0]
+        print(f"XX有限公司的母公司是：{parent_company_name}")
+        print(f"被投资的比例为：{investment_ratio}")
+        print(f"投资金额为：{investment_amount}")
+        
+        parent_company_info.to_csv(id2_result_path, index=False)
+        print(f"XX有限公司的母公司信息保存地址为：{id2_result_path}")
+        # 打印保存路径和详细信息
+        print(f"详细信息：{parent_company_info.info()}")
+        
+        
+except Exception as e:
+    # 捕获详细错误信息
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+
+###
+
+
+
+
+
+
+CODER_2
+###
+问题: 查询XX有限公司的母公司____YY年是否被起诉及涉案次数和涉案总额____
+### 
+调用工具：get_company_involved_cases_info_service
+### 
+前置任务保存路径: ./cache/62/1_id1_get_parent_company_info_by_child_company_name_service.csv
+### 
+任务保存路径：./cache/62/1_id2_get_company_involved_cases_info_service.csv
+###
+字段：被起诉,涉案次数, 涉案总额
+### 
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import warnings
+warnings.filterwarnings('ignore')
+
+# 任务， 查询XX有限公司的母公司____YY年是否被起诉及涉案次数和涉案总额____
+try:
+
+    ###任务编号id1的结果路径
+    id1_result_path = './cache/62/1_id1_get_parent_company_info_by_child_company_name_service.csv'
+
+    ### 当前任务工具调用后的保存路径
+    id2_result_path = './cache/62/1_id2_get_company_involved_cases_info_service.csv'
+
+    # 读取id1任务的结果
+    parent_company_info_df = pd.read_csv(id1_result_path) 
+    parent_company_name = parent_company_info_df['母公司全称'][0]
+
+
+
+    # 调用工具查询XX有限公司的母公司____涉案信息
+    involved_cases_info = get_company_involved_cases_info_service(company_name=parent_company_name, need_fields=['被告', '日期', '涉案金额'])
+    if involved_cases_info.shape[0] == 0:
+        print("没有找到XX有限公司的母公司____的涉案案件信息。")
+        sys.exit()
+
+    # 筛选YY年的案件信息
+    cases_YY = involved_cases_info[(involved_cases_info['日期'].str.contains('YY')) & (involved_cases_info['被告'].str.contains(parent_company_name)) ]
+
+    # 计算被起诉次数和涉案总额
+    sued_times = cases_YY.shape[0]
+    total_amount = cases_YY['涉案金额'].sum()
+
+    # 保存结果
+    result_df = pd.DataFrame({
+        '被起诉次数': [sued_times],
+        '涉案总额': [total_amount]
+    })
+    result_df.to_csv(id2_result_path, index=False)
+
+    print(f"XX有限公司的母公司YY年被起诉次数为：{sued_times}")
+    print(f"涉案总额为：{total_amount}")
+    print(f"结果保存地址为：{id2_result_path}")
+    print(f"详细信息：{result_df.info()}")
+
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+###
+

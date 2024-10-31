@@ -1,0 +1,34 @@
+PLAN
+###
+问题:XX有旗下一家子公司，成立时间为母公司成立YY年以后，该公司有ZZ左右的注册资本，其涉案中有一起在AA法院进行审理，请问这起案件的受理费用是多少？由谁承担？
+### 
+大表:CompanyInfo, CompanyRegister, SubCompanyInfo, CourtCode, LegalDoc
+###
+字段: XX
+###
+{{
+    "id1": {{
+        "task_id": "id1",
+        "task_description": "根据XX公司名称查询其子公司信息列表，筛选出成立时间为母公司成立YY年以后，注册资本为ZZ左右的子公司是___",
+        "tools": ["get_listed_sub_company_info_service_by_parent_company_name", "get_company_register_service"],
+        "previous_tasks": []
+    }},
+    "id2": {{
+        "task_id": "id2",
+        "task_description": "根据筛选出的子公司名称查询其涉案信息，并为所有案件查询其法院名称，筛选出在AA法院审理的案号是___",
+        "tools": ["get_company_involved_cases_info_serivce", "get_court_name_service_by_reference"],
+        "previous_tasks": ["id1"]
+    }},
+    "id3": {{
+        "task_id": "id3",
+        "task_description": "根据筛选出的案号信息查询受理费用是___， 按案件的判决结果找出承担方信息是___",
+        "tools": ["get_legal_document_service"],
+        "previous_tasks": ["id3"]
+    }}
+}}
+
+###
+
+
+
+

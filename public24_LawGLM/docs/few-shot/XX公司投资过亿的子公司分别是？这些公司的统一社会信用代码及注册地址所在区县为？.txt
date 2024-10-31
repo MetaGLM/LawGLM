@@ -1,0 +1,24 @@
+PLAN
+###
+问题:XX公司投资过亿的子公司分别是？这些公司的统一社会信用代码及注册地址所在区县为？
+### 
+大表: SubCompanyInfo, CompanyInfo,CompanyRegister,AddrInfo
+###
+字段: 关联公司，日期，案号，标题
+###
+
+{{
+    "id1": {{"previous_tasks": [],
+            "task_description": "根据金堆城钼业股份有限公司查询其投资过亿的全资子公司名称(结果含多条数据)",
+            "task_id": "id1",
+            "tools": ["get_listed_sub_company_info_service_by_parent_company_name"]}},
+    "id2": {{"previous_tasks": ["id1"],
+            "task_description": "根据子公司名称查询他们的统一社会信用代码和注册地址(结果含多条数据)",
+            "task_id": "id2",
+            "tools": ["get_listed_company_info_service", "get_company_register_service"]}},
+    "id3": {{"previous_tasks": ["id2"],
+            "task_description": "根据XX公司的子公司们的注册地址查询对应的区县信息(结果含多条数据)",
+            "task_id": "id3",
+            "tools": ["get_address_info_service"]}}
+}}
+###

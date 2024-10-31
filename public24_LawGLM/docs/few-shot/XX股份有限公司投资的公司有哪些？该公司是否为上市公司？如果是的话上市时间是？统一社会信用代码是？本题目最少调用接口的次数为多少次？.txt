@@ -1,0 +1,78 @@
+PLAN
+###
+问题:XX公司投资的公司有哪些？该公司是否为上市公司？如果是的话上市时间是？统一社会信用代码是？本题目最少调用接口的次数为多少次？
+### 
+大表:CompanyInfo,CompanyRegister, SubCompanyInfo
+###
+字段:公司名称, 子公司名称, 公司代码, 上市日期, 统一社会信用代码
+###
+{{"id1": {{"previous_tasks": [],
+         "task_description": "根据XX公司名称查询该公司投资的所有公司信息",
+         "task_id": "id1",
+         "tools": ["get_listed_sub_company_info_service_by_parent_company_name"]}},
+ "id2": {{"previous_tasks": [],
+         "task_description": "根据XX公司名称查询该公司是否为上市公司以及相关信息，如果是上市公司，查询其上市时间____",
+         "task_id": "id2",
+         "tools": ["get_listed_company_info_service"]}},
+ "id3": {{"previous_tasks": [],
+         "task_description": "根据XX公司名称查询该公司统一社会信用代码____",
+         "task_id": "id2",
+         "tools": ["get_company_register_service"]}},         
+ "id4": {{"previous_tasks": ["id1","id2","id3"],
+         "task_description": "统计调用的接口数量____",
+         "task_id": "id4",
+         "tools": []}}
+}}
+
+###
+
+CODER_1
+###
+问题: 根据XX公司名称查询该公司是否为上市公司以及相关信息，如果是上市公司，通过上市公司表查询其上市时间____
+### 
+调用工具：get_listed_company_info_service
+### 
+前置任务保存路径: 
+### 
+任务保存路径：./cache/46/1_id1_get_listed_company_info_service.csv, ./cache/46/1_id1_get_company_register_service.csv
+###
+字段：公司名称, 上市公司, 上市时间
+### 
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+    ### 当前任务工具调用后的保存路径
+    id1_result_path_1 = './cache/46/1_id1_get_listed_company_info_service.csv'
+    id1_result_path_2 = './cache/46/1_id1_get_company_register_service.csv'
+
+    company_name = "XX公司"
+    company_info = get_listed_company_info_service(company_name=company_name)
+    company_register = get_company_register_service(company_name=company_name)
+    
+    # 检查是否为上市公司
+    is_listed = company_info.shape[0] != 0
+    
+    # 如果是上市公司，查询其上市时间
+    if is_listed:
+        listed_date = company_info['上市日期'][0]
+        print(f"XX公司是上市公司，上市时间为: {listed_date}")
+        company_info.to_csv(id1_result_path_1, index=False)
+        print(f"XX公司的信息保存地址为: {id1_result_path_1}")
+       
+    else:
+        company_info.to_csv(id1_result_path_2, index=False)
+        print(f"XX公司的信息保存地址为: {id1_result_path_2}")
+        print(f"XX公司不是上市公司。")
+    print(f"详细信息: {company_info.info()}")
+    
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+###
+
+
+

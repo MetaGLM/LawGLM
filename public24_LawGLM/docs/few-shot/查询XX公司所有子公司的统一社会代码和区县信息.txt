@@ -1,0 +1,28 @@
+PLAN
+### 
+问题: 查询XX公司所有子公司的统一社会代码和注册地址所在区县信息
+###
+大表: SubCompanyInfo, CompanyRegister, AddrInfo
+###
+字段: 关联上市公司全称,公司名称, 统一社会信用代码, 企业地址, 区县 
+###
+{{
+    "id1":{{
+            "task_id"："id1",
+            "task_description":  "根据XX公司名称查询XX公司所有子公司(结果含多条数据)",    
+            "tools":["get_listed_sub_company_info_service_by_parent_company_name"],          
+            "previous_tasks": [] 
+    }},
+    "id2":{{
+            "task_id"："id2",
+            "task_description": "根据所有子公司的公司名称查询他们对应的统一信用代码和企业地址(结果含多条数据)",
+            "tools":["get_company_register_service"],          
+            "previous_tasks": ["id1"]
+    }},
+    "id3":{{
+            "task_id"："id3",
+            "task_description": "根据所有子公司的企业地址查询他们对应的区县信息(结果含多条数据)",
+            "tools":["get_address_info_service"],
+            "previous_tasks": ["id1","id2"]
+    }}             
+}}

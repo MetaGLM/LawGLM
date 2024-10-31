@@ -1,0 +1,99 @@
+PLAN
+###
+问题:XX有限公司的母公司有涉诉案件对方聘用律师事务所的负责人为YY吗？如果有，该案在什么地址进行审理的？
+### 
+大表:SubCompanyInfo,LegalDoc,LawfirmInfo, CourtInfo
+###
+字段: 公司简称, 母公司全称, 律师事务所负责人, 法院地址, 律师事务所
+###
+{{"id1": {{"previous_tasks": [],
+         "task_description": "根据XX有限公司查询其母公司名称",
+         "task_id": "id1",
+         "tools": ["get_parent_company_info_by_child_company_name_service"]}},
+ "id2": {{"previous_tasks": ["id1"],
+         "task_description": "根据母公司名称查询其涉诉案件信息列表(结果含多条数据)",
+         "task_id": "id2",
+         "tools": ["get_company_involved_cases_info_service"]}},
+ "id3": {{"previous_tasks": ["id2"],
+         "task_description": "从母公司的涉诉案件信息中筛选出对方聘用律师事务所名称(结果含多条数据), 通过律师事务所名称(结果含多条数据)查询负责人为YY的案件信息",
+         "task_id": "id3",
+         "tools": ["get_lawfirm_info_service"]}},
+ "id4": {{"previous_tasks": ["id2", "id3"],
+         "task_description": "根据案件信息中的案号查询审理法院名称_____，再根据审理法院名称_____查询审理法院地址____",
+         "task_id": "id4",
+         "tools": ["get_court_name_service_by_reference", "get_court_info_service"]}}
+}}
+###
+
+
+CODER_1
+###
+问题: 从XX的母公司所涉诉案件信息中筛选出对方聘用律师事务所名称(结果含多条数据), 通过律师事务所名称(结果含多条数据)查询负责人为YY的案件信息
+### 
+调用工具：get_lawfirm_info_service
+### 
+前置任务保存路径:./cache/XXX/X_id2_ get_parent_company_info_by_child_company_name_service.csv, ./cache/XXX/X_id2_get_company_involved_cases_info_service.csv
+### 
+任务保存路径：./cache/180/1_id3_get_lawfirm_info_service.csv
+###
+字段：涉诉案件，律师事务所，对方，负责人，案件信息
+###
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import sys 
+import warnings
+warnings.filterwarnings('ignore')
+try:
+    
+    ###任务编号id2的结果路径
+    id2_result_path_1 = './cache/XXX/X_id2_ get_parent_company_info_by_child_company_name_service.csv'
+    id2_result_path_2 = './cache/XXX/X_id2_get_company_involved_cases_info_service.csv'
+
+
+    ### 当前任务工具调用后的保存路径
+    id3_result_path = './cache/180/1_id3_get_lawfirm_info_service.csv'
+
+
+
+    # 读取id1任务的结果
+    parent_company_info_df = pd.read_csv(id2_result_path_1)
+    parent_company_name = parent_company_info_df['母公司全称'][0]
+    # 读取中间结果，获取母公司涉诉案件信息列表
+    cases_info_df = pd.read_csv(id2_result_path_2) 
+
+    # 筛选出对方聘用律师事务所名称
+     ases_info_df['对立方律师事务所名称'] = cases_info_df.apply(
+        lambda row: row['被告律师事务所'] if parent_company_name in row['原告'] else row['原告律师事务所'], axis=1)
+
+    cases_info_df_with_name = cases_info_df[cases_info_df['对立方律师事务所名称'].notnull()]
+
+    def find_opposite_lawfrim_charger(row):
+        opposite_lawfrim_name = row['对立方律师事务所名称']
+        if opposite_lawfrim_name:
+            law_firm_info_df = get_lawfirm_info_service(law_firm_name=opposite_lawfrim_name)
+            if law_firm_info_df.shape[0] > 0:
+                return law_firm_info_df['律师事务所负责人'][0]
+        return None
+    cases_info_df_with_name['对方聘用律师事务所负责人'] = cases_info_df_with_name.apply(find_opposite_lawfrim_charger, axis=1)
+    result_df = cases_info_df_with_name[cases_info_df_with_name['对方聘用律师事务所负责人'].str.contains('张纪明', na=False)]
+    
+    # 检查是否有符合条件的案件信息
+    if result_df.shape[0] == 0:
+        print("没有找到聘用律师事务所负责人为YY的案件信息。")
+    else:
+        # 保存筛选后的案件信息
+        # 打印保存路径和详细信息
+        print("找到聘用律师事务所负责人为YY的案件信息。")
+        result_df.to_csv(id3_result_path, index=False)
+        print(f"筛选出的案件信息保存地址为: {id3_result_pathh}")
+        print(f"详细信息: {result_df.info()}")
+
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+###
+
+
+
+

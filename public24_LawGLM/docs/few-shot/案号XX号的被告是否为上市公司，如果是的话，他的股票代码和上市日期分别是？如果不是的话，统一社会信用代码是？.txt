@@ -1,0 +1,74 @@
+PLAN
+###
+问题:案号XX号的被告是否为上市公司，如果是的话，他的股票代码和上市日期分别是？如果不是的话，统一社会信用代码是？
+### 
+大表:  LegalDoc, CompanyInfo, CompanyRegister
+###
+字段: 案号,被告,公司名称,上市日期,公司代码, 统一社会信用代码
+###
+{{"id1": {{"task_id": "id1",
+  "ask_description": "根据案号XX号查询被告公司名称____",
+  "tools": ["get_legal_document_service"],
+  "previous_tasks": []}},
+ "id2": {{"task_id": "id2",
+  "task_description": "根据被告公司名称查询该公司是否为上市公司以及相关信息,如果被告公司不是上市公司，根据被告公司名称查询其统一社会信用代码",
+  "tools": ["get_listed_company_info_service","get_company_register_service"],
+  "previous_tasks": ["id1"]}}
+}}
+###
+
+CODER_1
+###
+问题: 根据XX公司名称查询该公司是否为上市公司以及相关信息,如果被告公司不是上市公司，根据被告公司名称查询其统一社会信用代码
+### 
+调用工具：get_listed_company_info_service, get_company_register_service
+### 
+前置任务保存路径: ./cache/0/0_id1_get_legal_document_service.csv
+### 
+任务保存路径：./cache/0/0_id2_get_listed_company_info_service.csv , ./cache/0/0_id2_get_company_register_service.csv
+###
+字段：被告,公司名称,上市公司, 统一社会信用代码
+###
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import sys 
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+    ###任务编号id1的结果路径
+    id1_result_path = './cache/0/0_id1_get_legal_document_service.csv'
+
+    ### 当前任务工具调用后的保存路径
+    id2_result_path_1 = './cache/0/0_id2_get_listed_company_info_service.csv'
+    id2_result_path_2 = './cache/0/0_id2_get_company_register_service.csv'
+
+    # 读取id1任务的结果
+    get_legal_document_service_df = pd.read_csv(id1_result_path) 
+    company_name = get_legal_document_service_df['被告'][0]
+
+    company_info = get_listed_company_info_service(company_name=company_name)
+
+    # 检查是否为上市公司
+    is_listed = company_info.shape[0] == 0
+    company_info.to_csv(id2_result_path_1)
+    print(f"{company_name}的公司信息保存地址为：{id2_result_path_1}")
+    print(f"详细信息：{company_info.info()}")
+
+    if not is_listed:
+        print(f"{company_name}是上市公司。")
+    else:
+        print(f"{company_name}不是上市公司，正在查询其统一社会信用代码。")
+        company_register_info = get_company_register_service(company_name=company_name)
+        company_register_info.to_csv(id2_result_path_2)
+        print(f"{company_register_info['公司名称'][0]}的统一社会信用代码信息保存地址为：{id2_result_path_2}")
+        print(f"{company_register_info['公司名称'][0]}的统一社会信用代码为：{company_register_info['统一社会信用代码'][0]}")
+        print(f"详细信息：{company_register_info.info()}")
+        
+
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+
+###

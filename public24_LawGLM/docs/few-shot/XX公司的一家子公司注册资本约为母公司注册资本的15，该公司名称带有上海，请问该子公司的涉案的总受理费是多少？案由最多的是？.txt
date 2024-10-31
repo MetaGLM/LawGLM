@@ -1,0 +1,96 @@
+PLAN
+###
+问题:XX公司的一家子公司注册资本约为母公司注册资本的1/5，该公司名称带有上海，请问该子公司的涉案的总受理费是多少？案由最多的是？
+### 
+大表: SubCompanyInfo, CompanyRegister, LegalDoc
+###
+字段: 母公司全称,公司名称,注册资本, 关联公司, 受理费, 案由
+### 
+{{
+    "id1":{{
+            "task_id"："id1",
+            "task_description":  "根据XX公司名称查询XX公司的注册资本是___，并查询XX公司的所有子公司信息(含多条信息)",    
+            "tools":["get_company_register_service", "get_listed_sub_company_info_service_by_parent_company_name"],          
+            "previous_tasks": [] 
+    }},
+     "id2":{{
+            "task_id"："id2",
+            "task_description": "查询XX公司所有子公司的注册资本，筛选出子公司名称带有上海且注册资本约为母公司注册资本的1/5的公司是____",
+            "tools":["get_company_register_service"],          
+            "previous_tasks": ["id1"]
+    }},  
+    "id3":{{
+            "task_id"："id3",
+            "task_description": "对注册资本约为母公司注册资本的1/5的公司，找出其所有涉及案件，并计算其总受理费。",
+            "tools":["get_company_involved_cases_info_serivce"],          
+            "previous_tasks": ["id1","id2"]
+    }}   
+          
+}}
+
+###
+CODER_1
+###
+问题: 查询XX公司子公司的注册资本，筛选出子公司注册资本约为母公司注册资本的1/5的公司是____
+###
+调用工具： get_company_register_service
+### 
+前置任务保存路径: ./cache/XXX/X_id1_get_company_register_service, ./cache/XXX/X_id1_get_listed_sub_company_info_service_by_parent_company_name.csv
+### 
+任务保存路径：./cache/0/0_id2_get_company_register_service.csv
+###
+字段： 子公司, 注册资本,母公司
+###
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import sys
+
+try:
+
+    ###任务编号id1的结果路径
+    id1_result_path_1 = './cache/XXX/X_id1_get_company_register_service'
+    id1_result_path_2 = './cache/XXX/X_id1_get_listed_sub_company_info_service_by_parent_company_name.csv'
+
+    ### 当前任务工具调用后的保存路径
+    id2_result_path = './cache/0/0_id2_get_company_register_service.csv'
+
+    
+    # 读取id1任务的结果
+    company_name_info = pd.read_csv(id1_result_path_1) 
+    # 获取XX公司的注册资本
+    registered_capital = company_name_info['注册资本'][0]
+    company_name = company_name_info['公司名称'][0]
+    
+    
+    #获取XX公司的子公司信息
+    sub_companies_info = pd.read_csv(id1_result_path_2) 
+
+
+    def get_sub_company_registered_capital(raw):
+        sub_company_name = raw['子公司名称']
+        sub_company_register_info = get_company_register_service(company_name=sub_company_name)
+        return sub_company_register_info['注册资本'][0]
+    
+    # 获取每个子公司的注册资本，并进行过滤
+    sub_companies_info['注册资本'] = sub_companies_info.apply(get_sub_company_registered_capital, axis=1)
+    # 为防止母公司的注册金额过大，利用子公司的注册金额作为大约的模糊判断
+    filtered_sub_companies = sub_companies_info[
+        (sub_companies_info['注册资本'] > registered_capital / 8 * 0.9) &
+        (sub_companies_info['注册资本'] < registered_capital / 8 * 1.1)
+    ]
+
+    # 转换为 DataFrame 并保存结果
+    filtered_sub_companies_df.to_csv(id2_result_path, index=False)
+    print(f"符合条件的子公司信息保存地址为：{id2_result_path}")
+    print(f"详细信息：{filtered_sub_companies_df.info()}")
+    if len(filtered_sub_companies_df) == 1:
+        sub_company_name = filtered_sub_companies_df['子公司名称'].iloc[0]
+        print(f"XX公司中符合条件的子公司名称为: {sub_company_name}")
+
+except Exception as e:
+    # 捕获详细错误信息
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+
+

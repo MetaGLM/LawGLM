@@ -1,0 +1,180 @@
+PLAN
+###
+问题:XX有限公司作为被告的案件中涉案金额小于100万大于1万的案号分别为？涉案金额数值为？
+### 
+大表:  LegalDoc
+###
+字段: 关联公司,涉案金额,案号,被告
+###
+{{
+    "id1": {{"task_id": "id1",
+    "task_description": "XX有限公司作为被告的案件中查询涉案金额案件信息(结果含多条数据)",
+    "tools": ["get_company_involved_cases_info_service"],
+    "previous_tasks": []}},
+    "id2": {{
+        "task_id": "id2",
+        "task_description": "从XX有限公司的作为被告的案件结果中筛选出涉案金额小于100万大于1万的案号(含多条信息)，涉案金额数值分别(含多条信息)",
+        "tools": [],
+        "previous_tasks": ["id1"]
+    }}
+}}
+###
+
+
+CODER_1
+###
+问题: XX有限公司作为被告的案件中查询涉案金额案件信息(结果含多条数据)
+### 
+调用工具：get_company_involved_cases_info_service
+### 
+前置任务保存路径:
+### 
+任务保存路径：./cache/0/1_id1_get_company_involved_cases_info_service.csv
+###
+字段：案件,被告,涉案金额,案号
+###
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import sys
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+   
+    ### 当前任务工具调用后的保存路径
+    id1_result_path = './cache/0/1_id1_get_company_involved_cases_info_service.csv'
+
+
+    #调用工具查询XX有限公司作为被告的案件信息
+    company_name = "XX有限公司"
+    cases_info = get_company_involved_cases_info_service_service(company_name=company_name, need_fields=['案号', '涉案金额', '被告'])
+    filtered_cases_info = cases_info[cases_info['被告'].str.contains('XX有限公司')]
+    # 检查工具返回结果是否为空
+    if filtered_cases_info.shape[0] == 0:
+        print("工具调用错误或无相关数据，请检查输入参数是否正确")
+        sys.exit()
+
+    # 保存筛选后的案件信息
+    filtered_cases.to_csv(id1_result_path)
+    print(f"XXX有限公司作为被告的案件信息保存地址为：{id1_result_path}")
+    print(f"详细信息：{filtered_cases.info()}")
+    
+except Exception as e:
+    # 捕获详细错误信息
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+
+###
+
+
+CODER_2
+###
+问题: 从XX有限公司涉案件结果中筛选出涉案金额小于100万大于1万的案号(含多条信息)，涉案金额数值分别(含多条信息)
+### 
+调用工具：
+### 
+前置任务保存路径:./cache/0/1_id1_get_company_involved_cases_info_service.csv
+### 
+任务保存路径：./cache/0/0_id2.csv
+###
+字段：案件,被告,涉案金额,案号
+###
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import sys
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+   
+    ### 任务编号id1的结果路径
+    id1_result_path = './cache/0/1_id1_get_company_involved_cases_info_service.csv'
+
+    ### 当前任务工具调用后的保存路径
+    id2_result_path = './cache/0/0_id2.csv'
+
+    # 读取id1任务的结果
+    filtered_cases_info = pd.read_csv(id1_result_path) 
+
+    # 筛选涉案金额小于100万大于1万的案件
+    filtered_cases = filtered_cases_info[(filtered_cases_info['涉案金额'] > 10000) & (filtered_cases_info['涉案金额'] < 1000000)]
+    
+    # 检查筛选结果是否为空
+    if filtered_cases.shape[0] == 0:
+        print("没有找到涉案金额小于100万大于1万的案件")
+        sys.exit()
+    
+    # 保存筛选后的案件信息
+    filtered_cases.to_csv(id2_result_path)
+    
+    # 输出涉案金额小于100万大于1万的案号和涉案金额数值
+    case_numbers = filtered_cases['案号'].tolist()
+    case_amounts = filtered_cases['涉案金额'].tolist()
+    print(f"涉案金额小于100万大于1万的案号分别为：{case_numbers}")
+    print(f"涉案金额数值为：{case_amounts}")
+    print(f"XXX有限公司作为被告的涉案金额小于100万大于1万的案件信息保存地址为：{id2_result_path}")
+    print(f"详细信息：{filtered_cases.info()}")
+###
+
+
+
+
+CODER_1
+###
+问题: XX有限公司作为被告的案件中查询涉案金额小于100万大于1万的案件信息(结果含多条数据),从结果中筛选出涉案金额小于100万大于1万的案号分别为____，涉案金额数值为____
+### 
+调用工具：get_company_involved_cases_info_service
+### 
+前置任务保存路径:
+### 
+任务保存路径：./cache/0/0_id1_get_company_involved_cases_info_service.csv
+###
+字段：案件,被告,涉案金额,案号
+###
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import sys
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+    ### 当前任务工具调用后的保存路径
+    id1_result_path = './cache/0/0_id1_get_company_involved_cases_info_service.csv'
+
+    # 调用工具查询XX有限公司作为被告的案件信息
+    company_name = "XX有限公司"
+    cases_info = get_company_involved_cases_info_service_service(company_name=company_name, need_fields=['案号', '涉案金额', '被告'])
+    filtered_cases_info = cases_info[cases_info['被告'].str.contains('XX有限公司')]
+    # 检查工具返回结果是否为空
+    if filtered_cases_info.shape[0] == 0:
+        print("工具调用错误或无相关数据，请检查输入参数是否正确")
+        sys.exit()
+    
+    # 筛选涉案金额小于100万大于1万的案件
+    filtered_cases = filtered_cases_info[(filtered_cases_info['涉案金额'] > 10000) & (filtered_cases_info['涉案金额'] < 1000000)]
+    
+    # 检查筛选结果是否为空
+    if filtered_cases.shape[0] == 0:
+        print("没有找到涉案金额小于100万大于1万的案件")
+        sys.exit()
+    
+    # 保存筛选后的案件信息
+    filtered_cases.to_csv(id1_result_path)
+    
+    # 输出涉案金额小于100万大于1万的案号和涉案金额数值
+    case_numbers = filtered_cases['案号'].tolist()
+    case_amounts = filtered_cases['涉案金额'].tolist()
+    print(f"涉案金额小于100万大于1万的案号分别为：{case_numbers}")
+    print(f"涉案金额数值为：{case_amounts}")
+    print(f"伊吾广汇矿业有限公司作为被告的涉案金额小于100万大于1万的案件信息保存地址为：{id1_result_path}")
+    print(f"详细信息：{filtered_cases.info()}")
+    
+except Exception as e:
+    # 捕获详细错误信息
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+
+###
