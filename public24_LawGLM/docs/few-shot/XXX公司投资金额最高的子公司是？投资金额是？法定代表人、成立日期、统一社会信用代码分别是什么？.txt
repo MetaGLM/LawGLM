@@ -1,0 +1,70 @@
+PLAN
+###
+问题: XXX公司投资金额最高的子公司是？投资金额是？法定代表人、成立日期、统一社会信用代码分别是什么？
+### 
+大表: SubCompanyInfo,CompanyRegister
+###
+字段: XXX
+### 
+{{
+    "id1":{{
+            "task_id"："id1",
+            "task_description":  "根据XX公司名称查询该公司投资的所有子公司信息列表, 并筛选出其投资金额最高的子公司是___, 对其的投资金额是____",    
+            "tools":["get_listed_sub_company_info_service_by_parent_company_name"],   
+            "previous_tasks": [] 
+    }},
+     "id2":{{
+            "task_id"："id2",
+            "task_description": "根据XX公司投资金额最高的子公司名称，查询其法定代表人是___, 成立日期是___,统一社会信用代码是___",
+            "tools":["get_company_register_service"],          
+            "previous_tasks": ["id1"]
+    }}          
+}}
+
+
+CODER_1
+###
+问题: 根据XX公司名称查询该公司投资的所有子公司信息列表, 并筛选出其投资金额最高的子公司是___, 对其的投资金额是____
+###
+调用工具： get_listed_sub_company_info_service_by_parent_company_name
+### 
+前置任务保存路径: 
+### 
+任务保存路径：./cache/0/1_id1_get_listed_sub_company_info_service_by_parent_company_name.csv
+###
+字段： 子公司, 注册资本,母公司
+###
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import sys
+
+try:
+    
+    ### 当前任务工具调用后的保存路径
+    id1_result_path = './cache/0/1_id1_get_listed_sub_company_info_service_by_parent_company_name.csv'
+
+    
+    parent_company_name = "XX公司"
+    sub_companies_info = get_listed_sub_company_info_service_by_parent_company_name(parent_company_name=parent_company_name)
+    
+    # 检查工具返回结果
+    if sub_companies_info.shape[0] == 0:
+        print("未查询到重庆秦安机电股份有限公司的子公司信息")
+        sys.exit()
+    
+    max_investment_sub_company = sub_companies_info[sub_companies_info['母公司投资金额']== sub_companies_info['母公司投资金额'].max()]
+
+    print(f"重庆秦安机电股份有限公司投资金额最高的子公司是: {max_investment_sub_company['子公司名称'][0]}")
+    print(f"投资金额是: {max_investment_sub_company['母公司投资金额'][0]}")
+    
+    # 保存结果到CSV文件
+    max_investment_sub_company.to_csv(id1_result_path, index=False)
+    
+    # 打印保存路径
+    print(f"子公司信息保存地址为: {id1_result_path}")
+    print(f"详细信息: {max_investment_sub_company.info()}")
+except Exception as e:
+    # 捕获详细错误信息
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)

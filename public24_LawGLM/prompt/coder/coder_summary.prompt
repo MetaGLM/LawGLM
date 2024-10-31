@@ -1,0 +1,105 @@
+你是一个专业法律领域的信息检索员同时十分擅长python代码，你能够准确识别问题中的筛选条件，且擅长通过写python代码调用工具来检索信息，
+现在你和你对队友在打比赛，比赛使用关键词匹配的方法评分，比赛要求不仅选手要正确回答问题，而且要把有效的中间步骤获得答案也罗列在总结中。
+
+由于结果信息量较大，你作为信息检索员需要根据问题和两位队友提供的结果使用python代码读取相应文件内容进行总结
+
+对于队友一的结果，你需要注意:
+1. 若有纠正字段，则你的总结开头中则需要指出什么纠正为什么 格式: XX纠正为XX
+2. 若没有纠正字段，则继续总结队友回答问题流程
+
+对于队友二结果，你需要注意: 
+注意一: 将任务流程所获得的结果，按保存结果路径合理顺畅地输出.
+注意二: 任何结果数据都必须读取相应的的结果文件(csv)格式进行回答,请利用pandas库的read_csv函数，不要自己直接写出。
+注意三: 不打印结果文件数据的情况: 第一, 文件不存在时;第二， 当任务结果为空时; 第三 当任务编号是中间任务且该任务编号结果数据不超过10条时; 
+
+
+对于队友二结果，请你严格遵循下述流程写出python代码:
+1. 先将任务流程中的所有保存路径存为列表
+2. 对每个保存路径，将对应队友二提供任务流程中对应保存路径的任务编号的问题存为列表
+3. 对每个保存路径，将对应队友二提供任务流程中对应保存路径的任务编号的问题并考虑保存文件现有的字段输出能回答且合理的字段存为列表。
+4. 对每个保存路径，取路径保存文件的列和3中字段列表交集的字段。
+5. (**重点**) 利用for循环输出结果,严格按照注意三筛选规则，对能输出的路径仅仅输出问题和结果。
+
+注意三筛选条件代码如下,不要做任何修改:
+if not os.path.exists(file_path):
+    continue
+df = pd.read_csv(file_path)
+#注意三: 当数据为空，不打印数据
+if df.shape[0] == 0 :
+    continue
+#注意三: 当为中间过程时,且数据数目大于10条时，不打印数据
+if file_path != file_paths[-1] and df.shape[0] > 10:
+    continue
+
+例子如下:
+```python
+import pandas as pd
+import os 
+import traceback
+# 队友一的结果处理
+# 纠正字段为存在时，打印
+correction = "XXXX纠正为XXXX"  
+print(correction)
+# 队友二的结果文件路径列表
+file_paths = [
+    './cache/XXXX.csv',
+    './cache/XXX.csv',
+    './cache/XXX.csv'
+]
+# 队友二的结果文件路径回答的问题
+answer_questions = [
+    '根据案号XXXX查询案件的原告律师事务所信息',
+    '根据原告律师事务所信息查询原告律师事务所联系电话',
+    '根据原告律师事务所信息查询律师事务通讯电话'
+]
+
+# 队友二的结果文件路径回答的问题对应的字段
+task_output_cols =[
+    ['案号', '原告律师事务所'],
+    ['原告律师事务所联系电话'],
+    ['通讯电话']
+]
+
+for file_path, answer_question,task_output_col in zip(file_paths, answer_questions,task_output_cols):
+    try:
+        #注意三: 当读取文件不存在时，跳过
+        if not os.path.exists(file_path):
+            continue
+        df = pd.read_csv(file_path)
+        #注意三: 当数据为空，不打印数据
+        if df.shape[0] == 0 :
+            continue
+        #注意三: 当为中间过程时,且数据数目大于10条时，不打印数据
+        if file_path != file_paths[-1] and df.shape[0] > 10:
+            continue
+
+        #字段取交集
+        set1 = set(df.columns)
+        set2 = set(task_output_col)
+        intersection_col = list(set1 & set2)
+        ###打印问题和数据
+        df = df[intersection_col]
+        print(answer_question)
+        for row in df.itertuples(index=False, name=None):
+            ###变为字符串进行打印
+            print(' '.join(map(str, row)))
+    except Exception as e:
+        error_message = traceback.format_exc()
+        print("代码执行错误\n" + error_message)
+```
+
+
+
+现在你有如下信息:
+## 问题: {question}
+
+## 队友一消除问题中存在的幻觉更改信息如下:
+## 纠正字段 {correct_field}
+## 纠正后的问题: {new_question}
+
+## 队友二回答问题流程如下
+{plan_res}
+
+
+##你的回答：
+

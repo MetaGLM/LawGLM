@@ -1,0 +1,21 @@
+PLAN
+###
+问题:原告是XX股份有限公司的案件审理法院是哪家法院
+### 
+大表:LegalDoc, CourtInfo
+###
+字段: 关联公司, 法院名称
+###
+{{'id1': {{'previous_tasks': [],
+         'task_description': '根据XX公司名称查询其所有涉及案件信息(结果含多条数据)，筛选出原告是XX公司的案件信息(结果含多条数据)',
+         'task_id': 'id1',
+         'tools': ['get_company_involved_cases_info_service']}},
+ 'id2': {{'previous_tasks': ['id1'],
+         'task_description': '通过筛选出的案件信息中的案号查找涉诉案件在哪几家法院(结果含多条数据)进行审理',
+         'task_id': 'id2',
+         'tools': ['get_court_name_service_by_reference']}}
+}}
+###
+
+
+

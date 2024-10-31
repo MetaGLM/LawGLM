@@ -1,0 +1,127 @@
+PLAN
+###
+问题: (案号XX)中，审理当天审理法院与原告的律师事务所所在城市的最低温度相差多少度？本题使用的API个数为？最小调用次数为多少次？
+### 
+大表: SubCompanyInfo,LawfirmInfo,AddrInfo,TempInfo
+###
+字段: XXX
+### 
+{{
+  "id1":{{
+          "task_id":"id1",
+          "task_description":  "根据(案号XX)查询审理法院名称是___和原告律师事务所名称是___，审理日期为___",    
+          "tools":["get_court_name_service_by_reference","get_legal_document_service"],   
+          "previous_tasks": [] 
+  }},
+   "id2":{{
+          "task_id":"id2",
+          "task_description": "根据(案号XX)的审理法院查询审理法院地址为___, 根据(案号XX)的原告律师事务所地址为___, ",
+          "tools":["get_court_info_service", "get_lawfirm_info_service"],          
+          "previous_tasks": ["id1"]
+  }},
+  "id3": 
+  {{  
+      "task_id": "id3",     
+      "task_description": "根据审理法院具体地址查询审理法院所在省份是___城市是___，根据原告律师事务所地址查询审理法院所在省份是___城市是___",     
+      "tools": ["get_address_info_service"],
+      "previous_tasks": ["id2"]
+      
+  }},
+  "id4": 
+  {{  
+      "task_id": "id3",     
+      "task_description": "根据审理法院所在省份城市查询审理日期当天的最低温度是___度，根据原告律师事务所在省份城市查询审理日期当天的最低温度是___度，相差___度",     
+      "tools": ["get_temp_info_service"],
+      "previous_tasks": ["id3"]
+      
+  }},
+  "id5": 
+      {{        
+           
+           "task_id": "id4",
+           "task_description": "统计调用的API个数为____，最小调用次数为____次",
+           "tools": [],
+           "previous_tasks": ["id1", "id2","id3", "id4"]
+      }}
+}}
+###
+
+
+CODER_1
+###
+问题: 查询XX案件审理当天， XX1地址的最低温度为___度,XX2地址的最低温度的最低温度为___度, 两地最低温度相差___度
+###
+调用工具： get_temp_info_service
+### 
+前置任务保存路径: ./cache/23/1_id1_get_legal_document_service.csv,./cache/23/1_id3_get_address_info_service_court.csv,./cache/23/1_id3_get_address_info_service_lawfirm.csv
+### 
+任务保存路径：./cache/23/1_id4_get_temp_info_service.csv
+字段： 子公司, 注册资本,母公司
+###
+from services.all_tools_service_register import *
+import pandas as pd
+from datetime import datetime
+import warnings
+import traceback
+import sys
+try:
+    # 当前任务保存路径
+    id4_result_path = './cache/23/1_id4_get_temp_info_service.csv'
+
+    # 前置任务保存路径
+    id1_result_path_date = './cache/23/1_id1_get_legal_document_service.csv'
+    id3_result_path_court = './cache/23/1_id3_get_address_info_service_court.csv'
+    id3_result_path_lawfirm = './cache/23/1_id3_get_address_info_service_lawfirm.csv'
+
+    # 忽略警告信息
+    warnings.filterwarnings('ignore')
+
+
+    # 读取审理法院和原告律师事务所的地址信息
+    court_address_info = pd.read_csv(id3_result_path_court)
+    lawfirm_address_info = pd.read_csv(id3_result_path_lawfirm)
+
+    # 获取审理法院和原告律师事务所的省份城市信息
+    court_province = court_address_info['省份'][0]
+    court_city = court_address_info['城市'][0]
+    lawfirm_province = lawfirm_address_info['省份'][0]
+    lawfirm_city = lawfirm_address_info['城市'][0]
+
+    # 获取审理日期
+    legal_document_info = pd.read_csv(id1_result_path_date)
+
+    #### 格式化审理日期 使用内置函数format_date 转变为YY年MM月DD日格式
+    hearing_date = format_date(legal_document_info['审理日期'][0])
+
+    # 根据审理日期和省份城市查询天气信息
+    court_temp_info = get_temp_info_service(province=court_province, city=court_city, date=hearing_date)
+    lawfirm_temp_info = get_temp_info_service(province=lawfirm_province, city=lawfirm_city, date=hearing_date)
+
+    # 获取最低温度
+    court_min_temp = int(court_temp_info['最低温度'][0])
+    lawfirm_min_temp = int(lawfirm_temp_info['最低温度'][0])
+
+    # 计算温度差
+    temp_difference = abs(court_min_temp - lawfirm_min_temp)
+
+    # 打印结果
+    print(f"审理法院所在省份城市查询审理日期当天的最低温度是: {court_min_temp}度")
+    print(f"原告律师事务所在省份城市查询审理日期当天的最低温度是: {lawfirm_min_temp}度")
+    print(f"相差: {temp_difference}度")
+
+    # 保存结果
+    temp_difference_df = pd.DataFrame({
+        '审理法院最低温度': [court_min_temp],
+        '原告律师事务所最低温度': [lawfirm_min_temp],
+        '温度差': [temp_difference]
+    })
+    temp_difference_df.to_csv(id4_result_path, index=False)
+    print(f"温度差信息保存地址为: {id4_result_path}")
+    print(f"详细信息: {temp_difference_df.info()}")
+
+except Exception as e:
+    # 捕获详细错误信息
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+
+

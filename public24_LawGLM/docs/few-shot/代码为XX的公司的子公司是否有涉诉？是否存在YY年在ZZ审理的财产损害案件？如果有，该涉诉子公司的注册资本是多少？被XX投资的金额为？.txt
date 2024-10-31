@@ -1,0 +1,40 @@
+PLAN
+###
+问题:代码为XX的公司的子公司是否有涉诉？是否存在YY年在地址ZZ审理的财产损害案件？如果有，该涉诉子公司的注册资本是多少？被XX投资的金额为？
+### 
+大表: SubCompanyInfo, CompanyInfo, CompanyRegister, LegalDoc, CourtInfo
+###
+字段: 母公司全称,公司名称, 注册资本, 子公司, 涉诉, 投资金额
+### 
+{{
+    "id1": {{
+			"previous_tasks": [],
+			"task_description": "根据公司代码XX查询公司全称是___, 在查询其子公司信息列表(含多个结果)",
+			"task_id": "id1",
+			"tools": ["get_company_info_service_by_code","get_listed_sub_company_info_service_by_parent_company_name"]
+		 }},
+    "id2": {{
+				"previous_tasks": ["id1"],
+				"task_description": "查询公司代码为XX的公司的所有子公司的涉诉信息合并成一张表，筛选出日期在YY年且案由为财产损害的案件",
+				"task_id": "id1",
+				"tools": ["get_company_involved_cases_info_service"]
+			}},
+    "id3": {{
+				"previous_tasks": ["id2"],
+				"task_description": "若筛选出结果不为空，根据筛选出案件的案号中法院代字查询审理该案件的法院名称，再根据该法院名称查询法院地址，判断是否为地址ZZ",
+				"task_id": "id2",
+				"tools": ["get_court_name_service_by_reference","get_court_info_service"]
+			}},
+    "id4": {{
+				"previous_tasks": ["id3"],
+				"task_description": "若存在该案件，查询该涉诉子公司的注册资金____，并通过id1返回的内容查询被XX投资的金额____",
+				"task_id": "id3",
+				"tools": ["get_company_register_service"]
+			}}
+}}
+
+###
+
+
+
+

@@ -1,0 +1,159 @@
+PLAN
+###
+问题: 案号XXX案件中，审理当天审理法院的天气情况是？本题目调用了几类API？串行了几次？
+### 
+大表: LegalDoc,CourtInfo,AddrInfo,TempInfo
+###
+字段: XXX
+### 
+{{
+    "id1":{{
+            "task_id"："id1",
+            "task_description":  "根据案号XXX查询审理法院名称是_____, 审理日期是____",    
+            "tools":["get_court_name_service_by_reference","get_legal_document_service"],   
+            "previous_tasks": [] 
+    }},
+     "id2":{{
+            "task_id"："id2",
+            "task_description": "根据案号XX审理法院名称查询审理法院地址____, 并根据地址查询该审理法院所在的省份是___, 城市是___ ",
+            "tools":["get_court_info_service", "get_address_info_service"],          
+            "previous_tasks": ["id1"]
+    }},
+    "id3": 
+    {{        
+            "task_id": "id3",
+            "task_description": "根据案号XXX的审理法院所在省份城市以及审理日期查询审理当天的天气情况为____",
+            "tools": ["get_temp_info_service"],
+            "previous_tasks": ["id1", "id2"],
+    }},
+    "id4": 
+    {{      
+            "task_id": "id4",
+            "task_description": "本题目调用了___类API, 串行了___次",
+            "tools": [get_temp_info_service"],
+            "previous_tasks": ["id1","id2","id3","id4"],
+    }}
+}}
+
+
+CODER_1
+###
+问题: 根据案号XXX查询审理法院名称是_____, 审理日期是____
+###
+调用工具： get_court_name_service_by_reference, get_legal_document_service
+### 
+前置任务保存路径: 
+### 
+任务保存路径：./cache/23/1_id1_get_court_name_service_by_reference.csv,  ./cache/23/1_id1/get_legal_document_service.csv
+字段： 子公司, 注册资本,母公司
+###
+from services.all_tools_service_register import *
+import pandas as pd
+import traceback
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+    # 当前任务工具调用后的保存路径
+    id1_result_path_1 = './cache/29/1_id1_get_court_name_service_by_reference.csv'
+    id1_result_path_2 = './cache/29/1_id1_get_legal_document_service.csv'
+    
+    # 任务编号id1
+    # 根据案号查询审理法院名称
+    court_name = get_court_name_service_by_reference(reference='案号XX')
+    court_name_df = pd.DataFrame({'审理法院名称': court_name['审理法院名称']})
+    court_name_df.to_csv(id1_result_path_1, index=False)
+    
+    print(f"审理法院名称信息保存地址为: {id1_result_path_1}")
+    print(f"详细信息: {court_name_df.info()}")
+    
+    # 根据案号查询案件的裁判文书相关信息，获取审理日期
+    legal_document = get_legal_document_service(reference='(2021)辽01民终16020号')
+    legal_document_df = pd.DataFrame({
+        '审理日期': legal_document['日期'],
+        '案号': legal_document['案号']
+    })
+    legal_document_df.to_csv(id1_result_path_2, index=False)
+    
+    print(f"案件审理日期信息保存地址为: {id1_result_path_2}")
+    print(f"详细信息: {legal_document_df.info()}")
+    
+    # 获取审理法院名称和审理日期
+    court_name = court_name['审理法院名称'][0]
+    hearing_date = legal_document['日期'][0]
+    
+    # 打印获取的信息
+    print(f"案号XX的审理法院名称是: {court_name}")
+    print(f"案号XX的审理日期是: {hearing_date}")
+    
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+
+###
+
+
+CODER_2
+###
+问题: 根据案号XXX查询审理法院名称是_____, 审理日期是____
+###
+调用工具： get_temp_info_service
+### 
+前置任务保存路径: ./cache/29/1_id1_get_court_name_service_by_reference.csv, ./cache/29/1_id1_get_legal_document_service.csv, ./cache/29/1_id2_get_address_info_service.csv 
+### 
+任务保存路径：./cache/29/1_id3_get_temp_info_service.csv,  ./cache/23/1_id1/get_legal_document_service.csv
+字段： 子公司, 注册资本,母公司
+###
+from services.all_tools_service_register import *
+import pandas as pd
+import warnings
+import traceback
+import sys
+# 忽略警告信息
+warnings.filterwarnings('ignore')
+
+try:
+
+
+    # 当前任务保存路径
+    id3_result_path = './cache/29/1_id3_get_temp_info_service.csv'
+
+    # 前置任务保存路径
+    id1_court_name_path = './cache/29/1_id1_get_court_name_service_by_reference.csv'
+    id1_hearing_date_path = './cache/29/1_id1_get_legal_document_service.csv'
+    id2_court_address_path = './cache/29/1_id2_get_address_info_service.csv'
+
+    # 读取前置任务结果: 审理法院名称和审理日期
+    court_name_df = pd.read_csv(id1_court_name_path)
+    hearing_date_df = pd.read_csv(id1_hearing_date_path)
+    court_address_df = pd.read_csv(id2_court_address_path)
+
+    # 获取审理法院名称和审理日期
+    court_name = court_name_df['审理法院名称'][0]
+    hearing_date = hearing_date_df['审理日期'][0]
+
+    # 从审理法院地址信息中获取省份和城市
+    province = court_address_df['省份'][0]
+    city = court_address_df['城市'][0]
+
+    # 转换日期格式
+    hearing_date_formatted = format_date(hearing_date)
+
+    # 查询审理当天的天气情况
+    temp_info = get_temp_info_service(province=province, city=city, date=hearing_date_formatted)
+
+    # 打印结果
+    print(f"案号XX审理当天，{court_name}的天气情况为：")
+    for col in temp_info.columns:
+        print(f"{col}: {temp_info[col][0]}")
+
+    # 保存结果
+    temp_info.to_csv(id3_result_path, index=False)
+    print(f"审理当天天气情况信息保存地址为: {id3_result_path}")
+    print(f"详细信息: {temp_info.info()}")
+
+except Exception as e:
+    # 捕获详细错误信息
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+    sys.exit()

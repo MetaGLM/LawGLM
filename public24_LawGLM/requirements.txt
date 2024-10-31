@@ -1,0 +1,15 @@
+requests
+websocket-client
+langchain
+langchain-community
+langchain-openai
+langchainhub
+langgraph
+jsonlines
+tqdm
+pandas
+openpyxl
+duckduckgo-search
+scikit-learn
+zhipuai
+jieba

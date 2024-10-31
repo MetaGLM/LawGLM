@@ -1,0 +1,124 @@
+PLAN
+###
+问题:XX有限公司涉及的案件中，立案时间发生于YY年发生的劳务及劳务者相关的纠纷案件有几次？涉案总金额为？案号分别是？
+### 
+大表: LegalDoc
+###
+字段: 关联公司，案号，年份，涉案金额，案由
+###
+{{"id1": {{"task_id": "id1",
+  "task_description": "根据XX有限公司的名称查询该公司YY年涉及的所有案件信息(结果含多条数据)，筛选出与劳务及劳务者相关的纠纷案件(结果含多条数据)",
+  "tools": ["get_company_involved_cases_info_service"],
+  "previous_tasks": []}},
+ "id2": {{"task_id": "id2",
+  "task_description": "从XX公司的所有劳务纠的案件中，统计案件次数____和涉案总金额____，并记录案号(结果含多条数据)",
+  "tools": [],
+  "previous_tasks": ["id1"]}}
+}}
+###
+
+
+
+CODER_1
+###
+问题: 根据XX有限公司的名称查询该公司YY年涉及的所有案件信息(结果含多条数据)，筛选出与劳务及劳务者相关的纠纷案件(结果含多条数据)
+### 
+调用工具：get_company_involved_cases_info_service
+### 
+前置任务保存路径:
+### 
+任务保存路径：./cache/1/0_id1_get_company_involved_cases_info_service.csv
+###
+字段：案件信息，案件
+###
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import sys 
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+
+    ### 当前任务工具调用后的保存路径
+    id1_result_path = './cache/1/0_id1_get_company_involved_cases_info_service.csv'
+
+
+    # 根据公司名称查询所有涉案案件信息
+    company_name = "XX有限公司"
+    involved_cases = get_company_involved_cases_info_service(company_name=company_name)
+
+    if involved_cases.shape[0] == 0:
+        print("未查询到XX有限公司的涉案案件信息")
+        sys.exit()
+
+    # 筛选YY年涉及的所有案件信息
+    cases_YY = involved_cases[involved_cases['年份'] == 'YY']
+
+    # 筛选与劳务及劳务者相关的纠纷案件
+    labor_cases = cases_YY[cases_YY['案由'].str.contains('劳务|劳动者')]
+
+    # 保存筛选结果
+    labor_cases.to_csv(id1_result_path, index=False)
+    print(f"XX有限公司YY年涉及劳务及劳务者纠纷案件信息保存地址为：{id1_result_path}")
+    print(f"详细信息：{labor_cases.info()}")
+
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+###
+
+
+CODER_2
+###
+问题: 从XX公司的所有案件中，统计案件次数____和涉案总金额____，并记录案号(结果含多条数据)
+### 
+调用工具：
+### 
+前置任务保存路径:./cache/0/1_id1_get_company_involved_cases_info_service.csv
+### 
+任务保存路径：./cache/0/1_id2_get_listed_company_info_service.csv
+###
+字段：案件，案号，涉案金额
+###
+from services.all_tools_service_register import *
+import pandas as pd
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+    ###任务编号id1的结果路径
+    id1_result_path = './cache/0/1_id1_get_company_involved_cases_info_service.csv'
+
+    ###当前任务工具调用后的保存路径
+    id2_result_path = './cache/0/1_id2_get_listed_company_info_service.csv'
+
+
+    # 读取id1任务的结果
+    related_cases = pd.read_csv(id1_result_path) #path为已有的中间结果
+
+
+    # 统计案件次数和涉案总金额
+    case_count = related_cases.shape[0]
+    total_amount = related_cases['涉案金额'].sum()
+
+    # 保存统计结果
+    result_df = pd.DataFrame({
+        '案件次数': [case_count],
+        '涉案总金额': [total_amount],
+        '案号': [",".join(related_cases['案号'].tolist())]
+    })
+
+    
+    print(f"涉案总金额为：{total_amount}")
+    print(f"案件次数为：{case_count}")
+    print(f"案号分别为：{result_df['案号'].tolist()}")
+    result_df.to_csv(id2_result_path, index=False)
+    print(f"案件统计结果保存地址为：{id2_result_path}")
+    print(f"详细信息：{result_df.info()}")
+
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+###
+

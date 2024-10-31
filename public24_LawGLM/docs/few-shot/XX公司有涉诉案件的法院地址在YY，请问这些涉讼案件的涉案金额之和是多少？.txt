@@ -1,0 +1,31 @@
+PLAN
+###
+问题:XX公司有涉诉案件的法院地址在YY，请问这些涉讼案件的涉案金额之和是多少？
+### 
+大表:LegalDoc, CourtInfo, CourtCode
+###
+字段: 
+###
+{{
+    "id1": {{
+        "task_id": "id1",
+        "task_description": "根据XX公司查询其所有涉及案件信息(结果含多条数据)",
+        "tools": ["get_company_involved_cases_info_service"],
+        "previous_tasks": []
+    }},
+    "id2": {{
+        "task_id": "id2",
+        "task_description": "根据XX公司的涉诉案件信息中的案号查询法院名称(结果含多条数据),将法院名称添加到id1的结果中",
+        "tools": ["get_court_name_service_by_reference"],
+        "previous_tasks": ["id1"]
+    }},
+    "id3": {{
+        "task_id": "id3",
+        "task_description": "根据法院名称(含多条数据)查询法院地址(结果含多条数据)，筛选地址为YY的法院名称，根据筛选出的法院名称，计算其对应案件的涉案金额之和____",
+        "tools": ["get_court_info_service"],
+        "previous_tasks": ["id1", "id2"]
+    }}
+}}
+###
+
+

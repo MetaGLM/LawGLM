@@ -1,0 +1,103 @@
+PLAN
+###
+问题: (案号)XXX中，审理当天原告的律师事务所与被告的律师事务所所在地区的最高温度相差多少度？
+### 
+大表: SubCompanyInfo,LawfirmInfo,AddrInfo,TempInfo
+###
+字段: XXX
+### 
+{{
+    "id1":{{
+            "task_id"："id1",
+            "task_description":  "根据案号XX的裁判文书相关信息，获取审理日期是___, 原告律师事务所名称是___和被告律师事务所的名称是___, 原告律师事务所所在的地址是___, 被告律师事务所所在地址是___",    
+            "tools":["get_legal_document_service","get_lawfirm_info_service"],   
+            "previous_tasks": [] 
+    }},
+     "id2":{{
+            "task_id"："id2",
+            "task_description": "根据原告律师事务所地址查询所在的省份是___城市是___,根据被告律师事务所地址查询所在的省份是___城市是___ ",
+            "tools":["get_address_info_service"],          
+            "previous_tasks": ["id1"]
+    }},
+    "id3":{{
+            "task_id"："id3",
+            "task_description": "根据原告律师事务所在的省份城市和审理日期获取当天的最高温度为___度,根据被告律师事务所在的省份城市和审理日期获取当天的最高温度为___度,两者相差__——度",
+            "tools":["get_temp_info_service"],          
+            "previous_tasks": ["id1","id2"]
+    }}       
+}}
+###
+
+
+CODER_1
+###
+问题: 根据案号XX的裁判文书相关信息，获取审理日期是___,原告律师事务所名称是___和被告律师事务所的名称是___, 原告律师事务所所在的地址是___, 被告律师事务所所在地址是___
+###
+调用工具： get_legal_document_service, get_lawfirm_info_service
+### 
+前置任务保存路径: 
+### 
+任务保存路径：./cache/90/1_id1_get_legal_document_service.csv
+###
+字段： 子公司, 注册资本,母公司
+###
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import sys
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+
+    #当前任务工具调用后的保存路径
+    id1_result_path_1 = "./cache/90/1_id1_get_legal_document_service.csv"
+    id1_result_path_2 = './cache/90/1_id1_get_legal_document_service.csv'
+
+    # 任务编号id1
+    # 根据案号查询案件的裁判文书相关信息
+    case_info = get_legal_document_service(reference="案号XX")
+    case_info.to_csv(id1_result_path_1, index=False)
+    
+    print(f"案号XX案件信息保存地址为{id1_result_path_1}")
+    print(f"详细信息信息为{case_info.info()}")
+
+    
+    # 检查工具返回结果
+    if case_info.shape[0] == 0:
+        print("工具调用错误，请检查输入参数是否正确")
+        sys.exit()
+    
+    # 获取审理日期、原告律师事务所名称、被告律师事务所名称、原告律师事务所地址、被告律师事务所地址
+    hearing_date = case_info['日期'][0]
+    plaintiff_lawfirm_name = case_info['原告律师事务所'][0]
+    defendant_lawfirm_name = case_info['被告律师事务所'][0]
+    plaintiff_lawfirm_address = get_lawfirm_info_service(law_firm_name = plaintiff_lawfirm_name)['律师事务所地址'][0]  
+    defendant_lawfirm_address = get_lawfirm_info_service(law_firm_name = defendant_lawfirm_name)['律师事务所地址'][0]  
+    
+
+    case_lawfrim_info = pd.DataFrame({
+        "案号": ["案号XX"],
+        "审理日期": [hearing_date],
+        "原告律师事务所名称": [plaintiff_lawfirm_name],
+        "被告律师事务所名称": [defendant_lawfirm_name],
+        "原告律师事务所地址": [plaintiff_lawfirm_address],
+        "被告律师事务所地址": [defendant_lawfirm_address]
+    })
+    # 打印获取的信息
+    print(f"XX案号的审理日期是: {hearing_date}")
+    print(f"XX案号的原告律师事务所名称是: {plaintiff_lawfirm_name}")
+    print(f"XX案号的被告律师事务所的名称是: {defendant_lawfirm_name}")
+    print(f"XX案号的原告律师事务所所在的地址是: {plaintiff_lawfirm_address}")
+    print(f"XX案号的被告律师事务所所在地址是: {defendant_lawfirm_address}")
+    
+    
+    case_lawfrim_info.to_csv(id1_result_path_2, index=False)
+    print(f"案件信息保存地址为: {id1_result_path_2}")
+    print(f"详细信息: {case_lawfrim_info.info()}")
+    
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+
+###

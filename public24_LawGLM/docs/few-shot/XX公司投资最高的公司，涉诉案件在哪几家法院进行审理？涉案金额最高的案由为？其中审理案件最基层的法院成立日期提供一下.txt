@@ -1,0 +1,87 @@
+PLAN
+###
+问题:XX公司投资最高的公司，涉诉案件在哪几家法院进行审理？涉案金额最高的案由为？其中审理案件最基层的法院成立日期提供一下
+### 
+大表: CompanyInfo，SubCompanyInfo，LegalDoc， CourtInfo
+###
+字段: 母公司全称，母公司投资金额，子公司名称，涉案金额，案号，案由，法院名称，成立日期
+###
+{{"id1": {{"task_id": "id1",
+  "task_description": "根据XX公司名称查询其投资的所有子公司信息列表，并筛选出投资最高的公司____",
+  "tools": ["get_listed_company_info_service",
+   "get_listed_sub_company_info_service_by_parent_company_name"],
+  "previous_tasks": []}},
+ "id2": {{"task_id": "id2",
+  "task_description": "根据XX公司投资最高的子公司名称查询其所有涉诉案件信息(结果含多条数据),通过案件信息中的案号查找涉诉案件在哪几家法院(结果含多条数据)进行审理",
+  "tools": ["get_company_involved_cases_info_service","get_court_name_service_by_reference"],
+  "previous_tasks": ["id1"]}},
+ "id3": {{"task_id": "id3",
+  "task_description": "从XX公司所有涉诉案件信息中筛选出涉案金额最高的案由____",
+  "tools": [],
+  "previous_tasks": ["id2"]}},
+ "id4": {{"task_id": "id4",
+  "task_description": "从XX公司所有涉诉案件信息中筛选出审理案件的法院名称(结果含多条数据)查询法院的级别，筛选出最基层的法院名____,通过法院名____查询法院的成立日期",
+  "tools": ["get_court_code_service","get_court_info_service"],
+  "previous_tasks": ["id2"]}}
+}}
+
+###
+
+CODER_1
+###
+问题: 通过XX公司的所有涉案案件信息中的案号查找涉诉案件在哪几家法院(结果含多条数据)进行审理
+### 
+调用工具： get_court_name_service_by_reference
+### 
+前置任务保存路径: ./cache/XXX/X_id2_get_company_involved_cases_info_service.csv
+### 
+任务保存路径：./cache/0/1_id3_get_court_name_service_by_reference.csv
+###
+字段：案号, 涉诉案件, 审理法院名称
+###
+
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+    
+    ###任务编号id1的结果路径
+    id2_result_path = './cache/XXX/X_id2_get_company_involved_cases_info_service.csv'
+    
+    ### 当前任务工具调用后的保存路径
+    id3_result_path = './cache/0/1_id3_get_court_name_service_by_reference.csv'
+
+    # 读取id1任务的结果   
+    cases_info = pd.read_csv(id2_result_path)
+
+    # 获取XX公司所有涉案案件的审理法院名称
+    def get_court_name(row):
+        try:
+            reference = row['案号']
+            # 调用工具查询案件的审理法院
+            court_name = get_court_name_service_by_reference(reference=reference)['审理法院名称']
+            return court_namey  
+        except Exception as e:
+            print(f"获取 {reference} 的信息时发生错误: {e}")
+            return None  # 返回None表示无法获取信息
+
+    # 使用apply函数批量查询并获取结果
+    cases_info['审理法院名称'] = cases_info.apply(get_court_name, axis=1)
+
+    # 保存结果
+    cases_info.to_csv(id3_result_path, index=False)
+
+    # 打印保存路径和文件信息
+    print(f"XX公司的所有涉案案件信息的审理法院名称信息，保存地址为: {id3_result_path}")
+    print(f"详细信息: {cases_info.info()}")
+except Exception as e:
+    # 捕获详细错误信息
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+###
+
+
+

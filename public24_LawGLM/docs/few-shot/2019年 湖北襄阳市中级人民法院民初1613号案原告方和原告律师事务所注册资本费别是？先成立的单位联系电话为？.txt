@@ -1,0 +1,204 @@
+PLAN
+###
+问题: 2019年 XXX中级人民法院民初1613号案原告方和原告律师事务所注册资本费别是？先成立的单位联系电话为？
+### 
+大表:  XXXS
+###
+字段: XXX
+### 
+{{
+    "id1":{{
+            "task_id"："id1",
+            "task_description": "根据XXX中级人民法院获取其法院代字，再和年份(2019)和其他案号信息(民初1613号)组成案号是____",    
+            "tools":["get_court_code_service"],   
+            "previous_tasks": [] 
+    }},
+     "id2":{{
+            "task_id"："id2",
+            "task_description": "根据id1中获得案号查询原告方是___, 原告律师事务所是____",
+            "tools":["get_legal_document_service"],        
+            "previous_tasks": ["id1"]
+    }},
+    "id3": 
+    {{        
+            "task_id": "id3",
+            "task_description": "id1案号中原告方公司名称查询注册资本是____,联系电话是____, 成立日期是____",
+            "tools": ["get_company_register_service", ],
+            "previous_tasks": ["id2"],
+    }}
+    "id4": 
+    {{      
+            "task_id": "id4",
+            "task_description": "id1案号中原告律师事务所名称查询注册资本是____,联系电话是____, 成立日期是____",
+            "tools": ["get_lawfirm_info_service"],
+            "previous_tasks": ["id2"],
+    }},
+    "id5": 
+    {{      
+            "task_id": "id5",
+            "task_description": "比较id1案号中原告方和原告律师事务所成立日期，成立日期较早的单位联系电话为____",
+            "tools": [],
+            "previous_tasks": ["id3","id4"],
+    }}
+}}
+
+
+CODER_1
+###
+问题: 根据id1案号中原告方公司名称查询注册资本是____，联系电话是____，成立日期是____ 
+###
+调用工具： get_company_register_service
+### 
+前置任务保存路径: ./cache/51/1_id2_get_legal_document_service.csv
+### 
+任务保存路径：./cache/51/1_id3_get_company_register_service.csv, ./cache/51/1_id3_get_listed_company_info_service.csv
+字段： 子公司, 注册资本,母公司
+###
+from services.all_tools_service_register import *
+import pandas as pd
+import traceback
+import sys
+import warnings
+warnings.filterwarnings('ignore')
+
+# 前置任务保存路径
+id2_result_path = './cache/51/1_id2_get_legal_document_service.csv'
+
+# 当前任务保存路径
+id3_result_path_1 = './cache/51/1_id3_get_listed_company_info_service.csv'
+id3_result_path_2 = './cache/51/1_id3_get_company_register_service.csv'
+
+try:
+    # 读取id2任务的结果
+    legal_document_df = pd.read_csv(id2_result_path)
+    plaintiff = legal_document_df['原告'][0]
+    law_firm = legal_document_df['原告律师事务所'][0]
+
+    # 查询原告方公司信息
+    plaintiff_info = get_listed_company_info_service(company_name=plaintiff)
+    if plaintiff_info.shape[0] == 0:
+        plaintiff_info = get_company_register_service(company_name=plaintiff)
+    plaintiff_info.to_csv(id3_result_path_1)
+    print(f"{plaintiff}的信息保存地址为: {id3_result_path_1}")
+    print(f"详细信息: {plaintiff_info.info()}")
+
+    # 提取原告方公司的注册资本、联系电话和成立日期
+    plaintiff_capital = plaintiff_info['注册资本'][0] if '注册资本' in plaintiff_info.columns else None
+    plaintiff_phone = plaintiff_info['联系电话'][0] if '联系电话' in plaintiff_info.columns else None
+    plaintiff_establish_date = plaintiff_info['成立日期'][0] if '成立日期' in plaintiff_info.columns else None
+
+    print(f"{plaintiff}的注册资本是: {plaintiff_capital}")
+    print(f"{plaintiff}的联系电话是: {plaintiff_phone}")
+    print(f"{plaintiff}的成立日期是: {plaintiff_establish_date}")
+
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+
+###
+
+
+CODER_2
+###
+问题: 根据XXX中级人民法院获取其法院代字，再和年份2020和其他案号信息(民初013号)组成案号是____  
+###
+调用工具： get_court_code_service
+### 
+前置任务保存路径: ./cache/51/1_id2_get_legal_document_service.csv
+### 
+任务保存路径：./cache/51/1_id3_get_company_register_service.csv, ./cache/51/1_id3_get_listed_company_info_service.csv
+字段： 子公司, 注册资本,母公司
+###
+from services.all_tools_service_register import *
+import pandas as pd
+import traceback
+import warnings
+warnings.filterwarnings('ignore')
+
+# 当前任务保存路径
+id1_result_path = './cache/51/1_id1_get_court_code_service.csv'
+
+# 前置任务保存路径，由于无前置任务，此行留空
+# print("前置任务保存路径: 无")
+
+try:
+    # 根据法院名称获取法院代字等信息
+    court_name = 'XXX中级人民法院'
+    court_code_df = get_court_code_service(court_name=court_name)
+    
+    # 检查结果
+    if court_code_df.shape[0] == 0:
+        print("未找到对应的法院代字,请检查法院名称是否正确。")
+        sys.exit()
+    
+    # 获取法院代字
+    court_code = court_code_df['法院代字'][0]
+    
+    # 组成案号
+    case_number = f"(2020){court_code}民初013号"
+    
+    # 保存结果
+    court_code_df.to_csv(id1_result_path, index=False)
+    print(f"湖北省襄阳市中级人民法院的法院代字信息保存地址为: {id1_result_path}")
+    print(f"详细信息: {court_code_df.info()}")
+    
+    # 打印案号
+    print(f"案号是: {case_number}")
+
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+###
+
+
+
+CODER_3
+###
+问题: id1案号中原告律师事务所名称查询注册资本是____,联系电话是____, 成立日期是____ 
+###
+调用工具： get_lawfirm_info_service
+### 
+前置任务保存路径: ./cache/51/1_id2_get_legal_document_service.csv
+### 
+任务保存路径：./cache/51/1_id4_get_lawfirm_info_service.csv
+字段： 子公司, 注册资本,母公司
+###
+from services.all_tools_service_register import *
+import pandas as pd
+import traceback
+import warnings
+warnings.filterwarnings('ignore')
+
+# 前置任务保存路径
+id2_result_path = './cache/51/1_id2_get_legal_document_service.csv'
+
+# 当前任务保存路径
+id4_result_path = './cache/51/1_id4_get_lawfirm_info_service.csv'
+
+try:
+    # 读取id2任务的结果
+    legal_document_df = pd.read_csv(id2_result_path)
+    plaintiff_lawfirm = legal_document_df['原告律师事务所'][0]
+
+    # 查询原告律师事务所信息
+    lawfirm_info = get_lawfirm_info_service(law_firm_name=plaintiff_lawfirm)
+    lawfirm_info.to_csv(id4_result_path, index=False)
+
+    print(f"原告律师事务所信息保存地址为: {id4_result_path}")
+    print(f"详细信息: {lawfirm_info.info()}")
+
+    # 提取原告律师事务所的注册资本、联系电话和成立日期
+    lawfirm_capital = lawfirm_info['事务所注册资本'][0]
+    lawfirm_phone = lawfirm_info['通讯电话'][0]
+    lawfirm_establish_date = lawfirm_info['事务所成立日期'][0]
+
+    # 打印获取的信息
+    print(f"原告律师事务所的注册资本是: {lawfirm_capital}")
+    print(f"原告律师事务所的联系电话是: {lawfirm_phone}")
+    print(f"原告律师事务所的成立日期是: {lawfirm_establish_date}")
+
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+
+###

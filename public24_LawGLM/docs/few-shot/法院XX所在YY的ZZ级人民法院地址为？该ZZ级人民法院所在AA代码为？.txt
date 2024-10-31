@@ -1,0 +1,200 @@
+PLAN
+###
+问题: 法院XX所在YY的ZZ级人民法院地址为？该ZZ级人民法院所在地市/区县区划代码为？
+### 
+大表: CourtInfo, AddrInfo, AddrCode
+###
+字段: 法院名称, 法院地址, 区县区划代码, 地市区划代码
+###
+{{
+     "id1": {{
+          "previous_tasks": [],
+         "task_description": "查询XX法院所在的地址是___，根据地址查询所在省份是___，城市是___，区县是___",
+         "task_id": "id1",
+         "tools": ["get_court_info_service", "get_address_info_service"]
+     }},
+     'id2': {{
+          'previous_tasks': ['id1'],
+          'task_description': '根据XX法院地址对应的YY(省份/城市/区县)查询YY的ZZ级人民法院的地址是____（注意，实际情况可能需要根据省份和地级市名称组合查询，要多次尝试直到找到目标法院）',
+          'task_id': 'id2',
+          'tools': ["get_court_info_service"]
+     }},
+     'id3': {{
+          'previous_tasks': ['id2'],
+          'task_description': '根据该ZZ级人民法院地址所在省份是____,城市是____,区县是____,查询地市/区县区划代码是____',
+          'task_id': 'id3',
+          'tools': ["get_address_code_service"]
+     }}
+}}
+
+
+###
+
+CODER
+###
+问题: 根据该ZZ级人民法院地址所在省份是____,城市是____,区县是____,查询地市/区县区划代码是____
+### 
+调用工具：get_address_code_service
+### 
+前置任务保存路径: ./cache/XXX/1_id2_get_court_info_service.csv
+### 
+任务保存路径：./cache/XXX/X_id3
+###
+字段：法院地址，人民法院
+
+###
+from services.all_tools_service_register import *
+import pandas as pd
+import warnings
+import traceback
+warnings.filterwarnings('ignore')
+
+# 当前任务保存路径
+id3_result_path = './cache/XXX/1_id3_get_address_code_service.csv'
+
+# 前置任务保存路径
+id2_address_info_path = './cache/XXX/1_id2_get_court_info_service.csv'
+
+try:
+    # 读取前置任务id2的结果，获取省份、城市、区县信息
+    address_info_df = pd.read_csv(id2_address_info_path)
+    province = address_info_df['省份'][0]
+    city = address_info_df['城市'][0]
+    county = address_info_df['区县'][0]
+
+    # 调用工具获取区划代码
+    code_info = get_address_code_service(province=province, city=city, county=county)
+
+    # 打印结果(城市区划代码/区县区划代码)
+    city_code = code_info['城市区划代码'][0]
+    county_code = code_info['区县区划代码'][0]
+    print(f"该ZZ级人民法院所在地的地市区划代码是: {city_code}")
+    print(f"该ZZ级人民法院所在地的区县区划代码是: {county_code}")
+
+    # 保存结果
+    code_info.to_csv(id3_result_path, index=False)
+    print(f"区划代码信息保存地址为: {id3_result_path}")
+    print(f"详细信息: {code_info.info()}")
+
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+
+###
+
+
+CODER
+###
+问题: 根据XX法院地址对应的YY(省份/城市/区县)查询YY的ZZ级人民法院的地址是____
+### 
+调用工具：get_court_info_service
+### 
+前置任务保存路径: ./cache/XXX/1_id2_get_address_info_service.csv
+### 
+任务保存路径：./cache/XXX/X_id3
+###
+字段：法院地址，人民法院
+
+###
+from services.all_tools_service_register import *
+import pandas as pd
+import warnings
+import traceback
+import sys
+warnings.filterwarnings('ignore')
+
+try:
+    # 前置任务保存路径
+    id1_result_path = './cache/XXX/1_id1_get_address_info_service.csv'
+    # 当前任务保存路径
+    id2_result_path = './cache/XXX/1_id2_get_court_info_service.csv'
+    
+    # 读取id1任务的结果，获取省份、城市和区县信息
+    address_info = pd.read_csv(id1_result_path)
+    province = address_info['省份'][0]
+    city = address_info['城市'][0]
+    county = address_info['区县'][0]
+
+    # 注意查询法院地址使用get_court_info_service而非get_court_code_service
+    # 注意查询法院地址使用get_court_info_service而非get_court_code_service
+    # 注意查询法院地址使用get_court_info_service而非get_court_code_service
+
+    # 高级人民法院查询仅在省级
+    high_court_variants = [
+        f"{province}高级人民法院",
+        f"{province}省高级人民法院"
+    ]
+    
+    high_court_info = pd.DataFrame()
+    for court_name in high_court_variants:
+        # 注意查询法院地址使用get_court_info_service而非get_court_code_service
+        high_court_info = get_court_info_service(court_name=court_name)
+        if high_court_info.shape[0] > 0:
+            break
+
+    if high_court_info.shape[0] > 0:
+        high_court_info.to_csv(id2_result_path, index=False)
+        print(f"高级人民法院地址信息保存地址为:{id2_result_path}")
+        print(f"高级人民法院地址是:{high_court_info['法院地址'][0]}")
+    else:
+        print("未找到高级人民法院信息")
+
+    # 中级人民法院查询
+    middle_court_variants = [
+        f"{province}{city}中级人民法院",
+        f"{city}中级人民法院",
+        f"{province}中级人民法院",
+        f"{province}{city}市中级人民法院",
+        f"{city}市中级人民法院",
+        f"{province}省{city}市中级人民法院",
+        f"{province}省{city}中级人民法院"
+    ]
+    
+    middle_court_info = pd.DataFrame()
+    for court_name in middle_court_variants:
+        # 注意查询法院地址使用get_court_info_service而非get_court_code_service
+        middle_court_info = get_court_info_service(court_name=court_name)
+        if middle_court_info.shape[0] > 0:
+            break
+
+    if middle_court_info.shape[0] > 0:
+        middle_court_info.to_csv(id2_result_path, index=False)
+        print(f"中级人民法院地址信息保存地址为:{id2_result_path}")
+        print(f"中级人民法院地址是:{middle_court_info['法院地址'][0]}")
+    else:
+        print("未找到中级人民法院信息")
+
+    # 基层人民法院查询
+    basic_court_variants = [
+        f"{province}{city}{county}人民法院",
+        f"{city}{county}人民法院",
+        f"{province}{county}人民法院",
+        f"{county}人民法院",
+        f"{province}{city}{county}市人民法院",
+        f"{city}{county}市人民法院",
+        f"{province}{county}市人民法院",
+        f"{county}市人民法院",
+        f"{province}省{city}{county}市人民法院",
+        f"{province}省{city}{county}人民法院"
+    ]
+    
+    basic_court_info = pd.DataFrame()
+    for court_name in basic_court_variants:
+    	# 注意查询法院地址使用get_court_info_service而非get_court_code_service
+        basic_court_info = get_court_info_service(court_name=court_name)
+        if basic_court_info.shape[0] > 0:
+            break
+
+    if basic_court_info.shape[0] > 0:
+        basic_court_info.to_csv(id2_result_path, index=False)
+        print(f"基层人民法院地址信息保存地址为:{id2_result_path}")
+        print(f"基层人民法院地址是:{basic_court_info['法院地址'][0]}")
+    else:
+        print("未找到基层人民法院信息")
+
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+
+###
+

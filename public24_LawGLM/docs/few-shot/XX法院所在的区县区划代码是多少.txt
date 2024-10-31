@@ -1,0 +1,28 @@
+PLAN
+###
+问题: xx法院所在的区县区划代码是多少?
+### 
+大表: CourtInfo, AddrInfo,AddrCode
+###
+字段: 法院名称, 区县区划代码
+###
+{{
+    "id1": {{
+         "task_description": "查询xx法院所在的地址是___，根据XX法院地址所在省份是___，城市是___，区县是___查询地址信息",
+         "task_id": "id1",
+         "tools": ["get_court_info_service", "get_address_info_service"],
+         "previous_tasks": []
+    }},
+
+    "id2": 
+    {{
+         "task_description": "根据XX法院地址对应的省份城市区县查询区县区划代码是____",
+         "task_id": "id2",
+         "tools": ["get_address_code_service"],
+         "previous_tasks": ["id1"]
+    }}
+}}
+###
+
+
+

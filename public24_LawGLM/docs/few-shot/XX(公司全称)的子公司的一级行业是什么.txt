@@ -1,0 +1,22 @@
+PLAN
+###
+问题:XX(公司全称)的子公司的一级行业是什么
+### 
+大表: LegalDoc,CompanyRegister
+###
+字段: XXX
+### 
+{{
+    "id1": {{
+          "previous_tasks": [],
+          "task_description": "根据XX公司名称，查询其所有子公司信息(含多个结果)",
+          "task_id": "id1",
+          "tools": ["get_listed_sub_company_info_service_by_parent_company_name"]
+          }},
+    "id2": {{
+             "previous_tasks": ["id1"],
+             "task_description": "对于每个子公司查询其工商信息,记录每个子公司的一级行业"
+             "task_id": "id2",
+             "tools": ["get_company_register_service"]
+          }}
+}}

@@ -1,0 +1,124 @@
+你是一个专业的资深码农，精通python语言，熟练掌握pandas库，你正在处理一个代码错误，请根据以下信息，给出修复后的代码，
+修复过程中注意:
+1.打印回答问题信息，和结果保存路径以及结果信息，
+2.(**重点**)请依据示例在代码中写好工具结果检查模块以及报错处理模块。
+3.(**重点**)确保代码使用的参数和变量赋值真实有效(存在问题和中间结果之中)，存储多条数据的已有中间结果利用读取csv文件方式获取。
+4.调用工具函数时，严格按照工具函数参数的具体含义对参数进行调用，不要随意填写模糊字段进入。
+5.(**重点**)保存结果时把问题中含有的信息和结果信息一起保存,确保中间结果连贯。
+6.(**重点**)每次调用一次工具时，请把对他进行条件处理后的结果按保存路径进行保存，没有条件处理的直接保存,注意连贯。
+
+修复后的代码例子参考:
+例子1: 
+问题: 根据XX公司名称查询XX公司涉案金额最高的案号是____, 涉案金额最高的案号日期是____
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import sys 
+
+try:
+    # 根据公司名称查询所有涉案案件信息
+    company_name = "XX公司"
+    involved_cases = get_company_involved_cases_info(company_name=company_name)
+    
+    if involved_cases.shape[0] == 0:
+        print("未查询到XX公司的涉案案件信息")
+        sys.exit()
+
+    # 筛选涉案金额最高的案件
+    max_amount_case = involved_cases.loc[involved_cases['涉案金额'].idxmax()]
+
+    # 创建一个DataFrame来保存结果
+    max_amount_case_df = pd.DataFrame(max_amount_case).T
+
+    
+
+    # 输出最高涉案金额案件的案号和日期
+    max_amount_case_number = max_amount_case['案号']
+    max_amount_case_date = max_amount_case['日期']
+    print(f"涉案金额最高的案号是{{max_amount_case_number}}")
+    print(f"涉案金额最高的案号日期是{{max_amount_case_date}}")
+
+    # 保存筛选结果
+    save_path = 'XXX.csv'
+    max_amount_case_df.to_csv(save_path, index=False)
+    print(f"涉案金额最高的案件信息保存地址为：{{save_path}}")
+    print(f"详细信息：{{save_path.info()}}")
+
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+
+例子2:
+问题： 查询XX公司所有子公司的注册资本，筛选出子公司注册资本约为母公司注册资本的1/5的公司
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import sys
+
+try:
+    # 根据公司名称查询公司注册信息
+    company_name = "上海飞科电器股份有限公司"
+    company_register_info = get_company_register_service(company_name=company_name)
+    
+    if company_register_info.shape[0] == 0:
+        print("未查询到上海飞科电器股份有限公司的注册信息")
+        sys.exit()
+
+    # 读取已有中间结果
+    company_register_info = pd.read_csv('./cache/0/0_id1_get_company_register_service.csv')
+    company_name = company_register_info['公司名称'][0]
+    registered_capital = company_register_info['注册资本'][0]
+
+    #XX共的所有子公司信息
+    shanghai_sub_companies = pd.read_csv('./cache/0/0_id1_get_listed_sub_company_info_service_by_parent_company_name.csv')
+    
+
+    def get_sub_company_registered_capital(raw):
+        sub_company_name = raw['子公司名称']
+        sub_company_register_info = get_company_register_service(company_name=sub_company_name)
+        return sub_company_register_info['注册资本'][0]
+    
+    # 获取每个子公司的注册资本，并进行过滤
+    shanghai_sub_companies['注册资本'] = shanghai_sub_companies.apply(get_sub_company_registered_capital, axis=1)
+    
+    filtered_sub_companies_df = shanghai_sub_companies[
+        (shanghai_sub_companies['注册资本'] > registered_capital / 5 * 0.9) &
+        (shanghai_sub_companies['注册资本'] < registered_capital / 5 * 1.1)
+    ]
+
+    # 转换为 DataFrame 并保存结果
+    filtered_save_path = 'XXXX'
+    filtered_sub_companies_df.to_csv(filtered_save_path, index=False)
+    print(f"符合条件的子公司信息保存地址为：{{filtered_save_path}}")
+    print(f"详细信息：{{filtered_sub_companies_df.info()}}")
+
+    # 打印符合条件的子公司信息
+    for index, row in filtered_sub_companies_df.iterrows():
+        sub_company_name = row['子公司名称']
+        sub_registered_capital = row['注册资本']
+        print(f"子公司名称: {{sub_company_name}}, 注册资本: {{sub_registered_capital}}")
+
+except Exception as e:
+    # 捕获详细错误信息
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+### 已有的信息:
+{context}
+### 问题:
+{question}
+### 使用的工具信息: 
+{tools_info}
+### 现有代码：
+{code}
+### 代码错误信息: 
+{error_info}
+### 技术支持给出的意见:
+{suggestion}
+请依据技术支持给出的意见检讨自己出错的原因并修改现有代码，修复后的代码请以如下格式返回：
+```python
+{{fixed_code}}
+```
+### 注意
+1. 请针对出错代码段进行修改，不要增添任何假设性输出，任何数据都应该由已有信息和调用工具生成,注意工具返回的格式。
+2. (**重点**)不要新增加任何解释性的print输出。
+### 出错的的原因和修复后的代码：

@@ -1,0 +1,36 @@
+PLAN
+###
+问题: XXX公司关于工商信息及投资金额过亿的全资子公司，所有公司的立案时间在19年涉案金额不为0的裁判文书（不需要判决结果）整合报告。
+### 
+大表: 
+###
+字段: XXX
+### 
+{{
+    "id1":{{
+            "task_id"："id1",
+            "task_description": "根据XXX公司查询其工商信息，报告要求保存所有字段",    
+            "tools":["get_company_register_service"],   
+            "previous_tasks": [] 
+    }},
+     "id2":{{
+            "task_id"："id2",
+            "task_description": "根据XXX公司名称查询投资金额过亿的全资子公司信息，保存查询结果,报告要求保存所有字段",
+            "tools":["get_listed_all_sub_company_info_service_by_parent_company_name"],        
+            "previous_tasks": []
+    }},
+    "id3": 
+    {{        
+            "task_id": "id3",
+            "task_description": "根据XXX公司名称查询其在YY年涉案金额不为0的涉案信息，保存查询结果,报告要求保存所有字段",
+            "tools": ["get_company_involved_cases_info_service"],
+            "previous_tasks": [],
+    }}
+    "id4": 
+    {{      
+            "task_id": "id4",
+            "task_description": "根据XXX公司的工商信息，全资子公司信息，涉案信息整合为报告",
+            "tools": ["save_all_company_info_to_doc_service"],
+            "previous_tasks": ["id1","id2","id3"],
+    }}
+}}

@@ -1,0 +1,88 @@
+PLAN
+###
+问题:XX（18位统一社会信用代码）的公司全称是？该公司（起诉日期在YY年）作为被起诉人的次数及总金额为？
+### 
+大表: CompanyRegister, LegalDoc
+###
+字段: 统一社会信用代码,公司名称,关联公司,日期,被告,涉案金额
+###
+{{"id1": {{"task_id": "id1",
+  "task_description": "根据统一社会信用代码XX查询公司全称是____",
+  "tools": ["get_company_name_by_uniform_social_code_service"],
+  "previous_tasks": []}},
+  
+ "id2": {{"task_id": "id2",
+  "task_description": "根据公司全称查询该公司的涉案(结果含多条数据),计算出该公司的涉案次数为____,筛选出YY年作为被起诉人的次数为____，总金额为____",
+  "tools": ["get_company_involved_cases_info_service"],
+  "previous_tasks": ["id1"]}}
+}}
+
+###
+
+
+CODER_1
+###
+问题: 根据XX有限公司全称查询该公司的涉案(结果含多条数据),计算出该公司的涉案次数为____,筛选出YY年作为被起诉人的次数为____，总金额为____
+### 
+调用工具：get_company_involved_cases_info_service
+### 
+前置任务保存路径: ./cache/0/XXX_get_company_name_by_uniform_social_code_service.csv
+### 
+任务保存路径：./cache/0/0_id2_get_company_involved_cases_info_service.csv
+###
+字段：公司全称,涉案,涉案次数,被起诉人,总金额
+###
+from services.all_tools_service_register import *
+import traceback
+import pandas as pd
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+
+    ###任务编号id1的结果路径
+    id1_result_path = './cache/0/XXX_get_company_name_by_uniform_social_code_service.csv'
+
+    ### 当前任务工具调用后的保存路径
+    id2_result_path = './cache/0/0_id2_get_company_involved_cases_info_service.csv'
+    
+    # 读取id1任务的结果
+    company_name_info = pd.read_csv(id1_result_path) 
+    company_name = company_name_info['公司名称'][0]
+
+    # 调用工具查询公司的涉案信息
+    involved_cases_info = get_company_involved_cases_info_service_service(company_name=company_name)
+    if involved_cases_info.shape[0] == 0:
+        print("工具调用错误，请检查输入参数是否正确")
+        sys.exit()
+
+
+    # 计算涉案次数
+    case_count = involved_cases_info.shape[0]
+
+    # 筛选YY年的数据
+    involved_cases_YY_df = involved_cases_info[involved_cases_info['日期'].str.contains('2020')]
+
+    # 筛选被起诉人的案件
+    involved_cases_YY_as_defendant_df = involved_cases_YY_df[involved_cases_2020_df['被告'].str.contains('company_name')]
+
+    # 计算被起诉人的次数和总金额
+    times_sued = involved_cases_YY_as_defendant_df.shape[0]
+    total_amount = involved_cases_YY_as_defendant_df['涉案金额'].sum()
+
+    # 保存结果
+    result_df = pd.DataFrame([[company_name, case_count, times_sued, total_amount]], columns=['公司名称','总涉案次数','被起诉次数', '总金额'])
+
+    result_df.to_csv(id2_result_path)
+
+    print(f"XX股份有限公司的涉案次数为{case_count}")
+    print(f"YY年作为被起诉人的次数为{times_sued}，总金额为{total_amount}")
+    print(f"结果保存地址为：{id2_result_path}")
+    print(f"详细信息：{result_df.info()}")
+
+except Exception as e:
+    # 捕获详细错误信息
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+
+###

@@ -1,0 +1,242 @@
+PLAN
+###
+问题:91110114M0000JUP7F这家公司被投资了多少万
+### 
+大表: CompanyRegister,SubCompanyInfo
+###
+字段: XXX
+### 
+{{
+    "id1":{{
+            "task_id"："id1",
+            "task_description":  "根据1110114M0000JUP7F统一社会信用代码公司查询其公司名称",    
+            "tools":["get_company_name_by_uniform_social_code_service"],   
+            "previous_tasks": [] 
+    }},
+     "id2":{{
+            "task_id"："id2",
+            "task_description": "根据1110114M0000JUP7F所查出来的公司名称查询它被投资了多少万",
+            "tools":[""get_parent_company_info_by_child_company_name_service"],        
+            "previous_tasks": ["id1"]
+    }}
+}}
+
+
+CODER_1
+###
+问题: 根据XXX公司的工商信息，全资子公司信息，涉案信息，限制高消费信息整合为报告
+###
+调用工具： save_all_company_info_to_doc_service
+### 
+前置任务保存路径: ./cache/29/1_id1_get_company_register_service.csv, ./cache/29/1_id2_get_listed_all_sub_company_info_service_by_parent_company_name.csv, ./cache/29/1_id3_get_company_involved_cases_info_service.csv, ./cache/29/1_id4_get_company_xzgxf_by_company_name_service.csv
+### 
+任务保存路径：./cache/29/1_id5_save_all_company_info_to_doc_service.csv
+字段： 子公司, 注册资本,母公司
+###
+from services.all_tools_service_register import *
+import pandas as pd
+import traceback
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+
+    # 任务编号id1, id2, id3,id4的保存路径
+    id1_result_path = './cache/29/1_id1_get_company_register_service.csv'
+    id2_result_path = './cache/29/1_id2_get_listed_all_sub_company_info_service_by_parent_company_name.csv'
+    id3_result_path = './cache/29/1_id3_get_company_involved_cases_info_service.csv'
+    id4_result_path = './cache/29/1_id4_get_company_xzgxf_by_company_name_service.csv'
+    # 当前任务工具调用后的保存路径
+    id5_result_path = './cache/29/1_id5_save_all_company_info_to_doc_service.csv
+    
+    # 读取工商信息
+    company_register_info = pd.read_csv(id1_result_path)
+    company_name = company_register_info['公司名称'][0] 
+
+    report_df = save_all_company_info_to_doc_service(company_name = company_name,  company_register_info_path=id1_result_path, company_subcompany_info_path=id2_result_path,company_involved_cases_info_path=id3_result_path, company_xzgxf_info_path=id4_result_path  )
+    
+    print(f"XX公司的报告保存地址为: {id5_result_path}")
+    print(f"详细信息: {report_df.info()}")
+    
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+
+###
+
+
+CODER_1
+###
+问题: 根据XXX公司的工商信息，全资子公司信息，涉案信息整合为报告
+###
+调用工具： save_all_company_info_to_doc_service
+### 
+前置任务保存路径: ./cache/29/1_id1_get_company_register_service.csv, ./cache/29/1_id2_get_listed_all_sub_company_info_service_by_parent_company_name.csv, ./cache/29/1_id3_get_company_involved_cases_info_service.csv, ./cache/29/1_id4_get_company_xzgxf_by_company_name_service.csv
+### 
+任务保存路径：./cache/29/1_id5_save_all_company_info_to_doc_service.csv
+字段： 子公司, 注册资本,母公司
+###
+from services.all_tools_service_register import *
+import pandas as pd
+import traceback
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+
+    # 任务编号id1, id2, id3的保存路径
+    id1_result_path = './cache/29/1_id1_get_company_register_service.csv'
+    id2_result_path = './cache/29/1_id2_get_listed_all_sub_company_info_service_by_parent_company_name.csv'
+    id3_result_path = './cache/29/1_id3_get_company_involved_cases_info_service.csv'
+    # 当前任务工具调用后的保存路径
+    id4_result_path = './cache/29/1_id5_save_all_company_info_to_doc_service.csv
+    
+    # 读取工商信息
+    company_register_info = pd.read_csv(id1_result_path)
+    company_name = company_register_info['公司名称'][0] 
+    report_df = save_all_company_info_to_doc_service(company_name = company_name,  company_register_info_path=id1_result_path, company_subcompany_info_path=id2_result_path,company_involved_cases_info_path=id3_result_path  )
+
+    
+    print(f"XX公司的报告保存地址为: {id4_result_path}")
+    print(f"详细信息: {report_df.info()}")
+    
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+
+###
+
+
+CODER_2
+###
+问题: 根据XXX公司查询其工商信息，报告要求保存所有字段
+###
+调用工具： get_company_register_service
+### 
+前置任务保存路径: ./cache/50/1_id1_get_company_register_service.csv
+### 
+任务保存路径：
+字段： 子公司, 注册资本,母公司
+###
+from services.all_tools_service_register import *
+import pandas as pd
+import traceback
+import warnings
+warnings.filterwarnings('ignore')
+
+
+
+try:
+
+    # 任务编号id1的保存路径
+    id1_result_path = './cache/50/1_id1_get_company_register_service.cs'
+    # 查询利亚德光电股份有限公司的工商信息
+    company_name = "XX公司"
+    company_register_info = get_company_register_service(company_name=company_name)
+
+    # 保存工商信息
+    company_register_info.to_csv(id1_result_path, index=False)
+    print(f"利亚德光电股份有限公司的工商信息保存地址为: {id1_result_path_2}")
+    print(f"详细信息: {company_register_info.info()}")
+
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+####
+
+CODER_3
+###
+问题: 根据XXX公司名称查询其在YY年涉案金额不为0的涉案信息，保存所有查询结果
+###
+调用工具： get_company_involved_cases_info_service
+### 
+前置任务保存路径: ./cache/50/1_id3_get_company_involved_cases_info_service.csv
+### 
+任务保存路径：
+字段： 子公司, 注册资本,母公司
+###
+from services.all_tools_service_register import *
+import pandas as pd
+import traceback
+import sys
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+
+    # 前置任务保存路径
+    id1_result_path_register_info = './cache/50/1_id1_get_company_register_service.csv'
+
+    # 当前任务保存路径
+    id3_result_path_cases_info = './cache/50/1_id3_get_company_involved_cases_info_service.csv'
+
+    # 读取XX公司名称
+    register_info_df = pd.read_csv(id1_result_path_register_info)
+    company_name = register_info_df['公司名称'][0]
+    
+    cases_info = get_company_involved_cases_info_service(company_name=company_name)
+    if cases_info.shape[0] == 0:
+        print("XX公司没有YY年涉案金额不为0的裁判文书信息保存地址)
+        print(f"XX公司19年涉案金额不为0的裁判文书信息保存地址为: {id3_result_path_cases_info}")
+        sys.exit()
+
+    filtered_cases = cases_info[(cases_info['年份'] == 'YY') & (cases_info['涉案金额'] != 0)]
+    
+    # 保存结果
+    filtered_cases.to_csv(id3_result_path_cases_info, index=False)
+    print(f"XX公司19年涉案金额不为0的裁判文书信息保存地址为: {id3_result_path_cases_info}")
+    print(f"详细信息: {filtered_cases.info()}")
+    
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+###
+
+
+
+CODER_4
+###
+问题: 根据XXX公司名称查询其在YY年限制高消费信息，保存查询结果,报告要求保存字段：限制高消费企业名称,案号,申请人,涉案金额,立案日期,限高发布日期
+###
+调用工具： get_company_xzgxf_by_company_name_service
+### 
+前置任务保存路径: ./cache/50/1_id3_get_company_xzgxf_by_company_name_service.csv
+### 
+任务保存路径：
+字段： 子公司, 注册资本,母公司
+###
+from services.all_tools_service_register import *
+import pandas as pd
+import traceback
+import sys
+import warnings
+warnings.filterwarnings('ignore')
+
+try:
+
+    # 前置任务保存路径
+    id1_result_path_register_info = './cache/50/1_id1_get_company_register_service.csv'
+
+    # 当前任务保存路径
+    id3_result_path_cases_info = './cache/50/1_id3_get_company_xzgxf_by_company_name_service.csv'
+
+    # 读取XX公司名称
+    register_info_df = pd.read_csv(id1_result_path_register_info)
+    company_name = register_info_df['公司名称'][0]
+    
+    cases_info = get_company_xzgxf_by_company_name_service(company_name=company_name)
+    if cases_info.shape[0] == 0:
+        print("XX公司没有YY年涉案金额不为0的限制高消费案件")
+        print(f"XXX公司YY年涉案金额不为0的限制高消费案件信息保存地址为: {id3_result_path_cases_info}")
+        sys.exit()
+    filtered_cases = cases_info[(cases_info['年份'] == 'YY')]
+    
+    # 保存结果
+    filtered_cases.to_csv(id3_result_path_cases_info, index=False)
+    print(f"XX公司YY年的限制高消费信息保存地址为: {id3_result_path_cases_info}")
+    print(f"详细信息: {filtered_cases.info()}")
+    
+except Exception as e:
+    error_message = traceback.format_exc()
+    print("代码执行错误\n" + error_message)
+###

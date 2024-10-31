@@ -1,0 +1,31 @@
+PLAN
+###
+问题:请问一下，公司代码300674的法定代表人及工商电话注册资本是多少亿元？请保留2位小数。该题目API调用串行次数为
+### 
+大表:CompanyInfo,CompanyRegister
+###
+字段: 
+###
+{{
+    "id1": {{ 
+        "task_id": "id1",
+        "task_description": "根据公司代码300674查询公司名称____",
+        "tools": ["get_company_info_service_by_code"],
+        "previous_tasks": []
+    }},
+    "id2": {{
+        "task_id": "id2",
+        "task_description": "根据公司名称____查询其法定代表人____及工商电话____注册资本是多少亿元____保留2位小数。",
+        "tools": ["get_company_register_service"],
+        "previous_tasks": ["id1"]
+    }},
+    "id3": {{
+        "task_id": "id3",
+        "task_description": "统计API调用串行次数",
+        "tools": [],
+        "previous_tasks": ["id1", "id2"]
+    }}
+}}
+###
+
+
