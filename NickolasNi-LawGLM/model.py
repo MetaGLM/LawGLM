@@ -3,7 +3,7 @@ from match_tools.schema import database_schema
 from config import *
 
 
-client = ZhipuAI(api_key="453f1ac181131a5cc9f9b95055e97735.NCIcpVHIY7lUtQqz")  # qb
+client = ZhipuAI()
 
 system_prompt = (
     """你是一位金融法律专家，你的任务是根据用户给出的query，调用给出的工具接口，获得用户想要查询的答案。
@@ -16,7 +16,7 @@ web_search_tool = {"type": "web_search", "web_search": {"enable": False}}
 
 
 def call_glm(
-    messages, model="glm-4-0520", temperature=0.1, top_p=0.5, tools=[web_search_tool], max_tokens=1024, do_sample=True
+    messages, model="glm-4-plus", temperature=0.1, top_p=0.5, tools=[web_search_tool], max_tokens=1024, do_sample=True
 ):
     response = client.chat.completions.create(
         model=model,  # 填写需要调用的模型名称

@@ -18,6 +18,12 @@
 
 - 🔥🔥 **News**: ```2024/10/20```: 我们整理开源了第一个参赛队伍的代码。并完成了项目的基础工作。
 
+## 比赛规则
+
+> 答疑地址: https://www.bilibili.com/video/BV1k4421U78c/?vd_source=c083324a69ff411499cf1b5f539eaac7
+
+> 官方解题思路： https://www.bilibili.com/video/BV1k4421U78c/?vd_source=c083324a69ff411499cf1b5f539eaac7
+
 ## 队伍代码
 
 + [APIWeaver](APIWeaver-lawGLM/README.md): 由 [MeiPixel](https://github.com/MeiPixel) 贡献。
