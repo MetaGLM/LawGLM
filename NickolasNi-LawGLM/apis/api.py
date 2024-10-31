@@ -44,21 +44,6 @@ def http_api_call_original(api_name, data):
     final_rsp = rsp.json()
     return final_rsp
 
-
-# def http_api_call_4_data_processing(api_name, data, max_data_len=None):
-#     url = f"{domain}/law_api/s1_b/{api_name}"
-#     rsp = requests.post(url, json=data, headers=headers)
-#     final_rsp = rsp.json()
-#     final_rsp = [final_rsp] if isinstance(final_rsp, dict) else final_rsp
-#
-#     if max_data_len is None:
-#         max_data_len = len(final_rsp)
-#     return {
-#         "return_items_count": len(final_rsp),
-#         "return": final_rsp[:max_data_len]
-#     }
-
-
 def get_company_name_by_bref(bref):
     company_names = [
         i["公司名称"]

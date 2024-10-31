@@ -1,8 +1,3 @@
-# from match_tools.company_info_tools import *
-# from match_tools.company_register_tools import *
-# from match_tools.sub_company_info_tools import *
-# from match_tools.law_tools import *
-# from match_tools.tools_register import get_tools, dispatch_tool
 from config import *
 from tools import get_tools, dispatch_tool
 from utils import multi_thread_excute
@@ -14,8 +9,7 @@ import time
 from match_tools.schema import database_schema
 
 
-client = ZhipuAI(api_key="ac231e7f3c9f6060d44bef9fd49dbcb6.CVJS8sDQAGl2dZQF")  # 1711
-# client = ZhipuAI(api_key="60a517191efd341550bb71f6af1d0608.bTy2LYWlcMqqyuzY") # 8830
+client = ZhipuAI()
 
 system_prompt = (
     """你是一位金融法律专家，你的任务是根据用户给出的query，调用给出的工具接口，获得用户想要查询的答案。
@@ -25,9 +19,9 @@ system_prompt = (
 )
 
 
-def call_glm(messages, model="glm-4-0520", temperature=0.95, tools=None):
+def call_glm(messages, model="glm-4-plus", temperature=0.95, tools=None):
     response = client.chat.completions.create(
-        model=model,  # 填写需要调用的模型名称
+        model=model,
         messages=messages,
         temperature=temperature,
         top_p=0.9,

@@ -1,7 +1,6 @@
 from pprint import pprint
 
 isLocal = False
-# isLocal = True
 
 
 def print_log(*args):

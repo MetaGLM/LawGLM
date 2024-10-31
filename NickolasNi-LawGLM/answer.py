@@ -102,12 +102,9 @@ def run(query, tools, related_tables, update_message=True, suggested_logic_chain
 
             for _ in range(3):
                 try:
-                    # response = call_glm(messages, model="glm-4-0520", tools=tools)
-                    # response = call_glm(messages, model="glm-4-0520", tools=tools, do_sample=False)
                     response = call_glm(messages, model="glm-4-0520", tools=tools, temperature=0.11, top_p=0.11)
                     message, response = parse_content_2_function_call(response.choices[0].message.content, response)
-                    tokens_count += response.usage.total_tokens
-                    # messages.append(response.choices[0].message.model_dump())
+                    tokens_count += response.usage.total_token
                     messages.append(message)
                     break
                 except Exception as e:
@@ -115,10 +112,6 @@ def run(query, tools, related_tables, update_message=True, suggested_logic_chain
 
             try:
                 if response.choices[0].finish_reason == "tool_calls":
-                    # tools_call = response.choices[0].message.tool_calls[0]
-                    # tool_name = tools_call.function.name
-                    # args = tools_call.function.arguments
-
                     tool_name = message["tool_calls"][0]["function"]["name"]
                     args = message["tool_calls"][0]["function"]["arguments"]
                     args = utils.check_company_name(tool_name, args, logic_chain, must_contained_info)
@@ -400,16 +393,12 @@ def print_answer(result_file):
 if __name__ == "__main__":
     if isLocal:
         question_file = "./data/questions/question_c_more.json"
-        # question_file = "./data/questions/question_c_60.json"
         question_file = "./data/questions/question_c_report.json"
-        # 修改输出文件
         result_file = "data/results/fa_1.json"
         result_file = "data/results/fa_2.json"
 
         queries = read_jsonl(question_file)
-        # queries = queries[0:4]
 
-        # 生成答案
         print_log("Start generating answers...")
         all_tools = get_tools()
         print_log(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
@@ -418,41 +407,15 @@ if __name__ == "__main__":
             if query["id"] < 170:
                 continue
             content = process_query(all_tools, query, use_full_tools=True)
-            # content = process_query(all_tools, query, update_message = True)
-            # content = process_query(all_tools, query, update_message=True, suggested_logic_chain=True)
             with jsonlines.open(result_file, "a") as json_file:
                 json_file.write(content)
-            #
-            # try:
-            #     message_file_path = 'data/message/' + str(query['id']) + '.json'
-            #     import json
-            #     with open(message_file_path, 'w', encoding='utf-8') as file:
-            #         json.dump(response[2], file, ensure_ascii=False, indent=4)
-            #     print_log('{} tokens used'.format(str(response[0])))
-            # except Exception as e:
-            #     print_log(str(e))
-            # # save tools to json
+
         print_log(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-        # 2.20
     else:
-        question_file = "/tcdata/question_d.json"
+        question_file = "../assets/question_d.json"
         result_file = "/app/result.json"
 
-        # question_file = "./data/questions/question_c.json"
-        # question_file = "./data/questions/question_c_more.json"
-        # question_file = "./data/questions/question_c_types.json"
-        # question_file = "./data/questions/question_c_report.json"
-        # result_file = "result_local.json"
-        # result_file = "result_report_5.json"
-        # result_file = "result_air.json"
-        # result_file = "result_0502.json"
-
         queries = read_jsonl(question_file)
-        # queries = queries[:5] + queries[8:10] + queries[45:46] + queries[60:62]
-
-        # incorrect_answers, incorrect_ids = get_incorrect_results(result_file)
-        # print('incorrect number: ' + str(len(incorrect_ids)))
-
         # 生成答案
         print_log("Start generating answers...")
 
