@@ -20,9 +20,19 @@
 
 ## 比赛规则
 
-> 答疑地址: https://www.bilibili.com/video/BV1k4421U78c/?vd_source=c083324a69ff411499cf1b5f539eaac7
+### 答疑和规则
 
-> 官方解题思路： https://www.bilibili.com/video/BV1k4421U78c/?vd_source=c083324a69ff411499cf1b5f539eaac7
++ 官方QA视频: https://www.bilibili.com/video/BV1k4421U78c/?vd_source=c083324a69ff411499cf1b5f539eaac7
++ QA PPT: [点击这里](assets/qa.pdf)
++ 官方解题思路： https://www.bilibili.com/video/BV1k4421U78c/?vd_source=c083324a69ff411499cf1b5f539eaac7
+
+### BaseLine
+
++ [伍柒](assets/【baseline分享】伍柒.pdf)
++ [法外张三](assets/【baseline分享】法外张三.pdf)
++ [张江高科](assets/【baseline分享】张江高科.pdf)
+
+以上信息可供参考，进一步了解该比赛。
 
 ## 队伍代码
 
