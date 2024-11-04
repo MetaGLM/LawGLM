@@ -103,7 +103,8 @@ def run(query, tools, related_tables, update_message=True, suggested_logic_chain
             for _ in range(3):
                 try:
                     response = call_glm(messages, model="glm-4-plus", tools=tools, temperature=0.11, top_p=0.11)
-                    message, response = parse_content_2_function_call(response.choices[0].message.content, response)
+                    # message, response = parse_content_2_function_call(response.choices[0].message.content, response)
+                    message = response.choices[0].message.model_dump()
                     tokens_count += response.usage.total_tokens
                     messages.append(message)
                     break

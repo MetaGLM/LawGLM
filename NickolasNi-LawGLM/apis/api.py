@@ -19,7 +19,7 @@ domain = "https://comm.chatglm.cn"
 
 headers = {
     "Content-Type": "application/json",
-    "Authorization": "Bearer 0F7354720533CAACBA57DCA97F89069CB80C78B9BB769786",
+    "Authorization": "Bearer black_myth_wukong",
 }
 
 
