@@ -1,0 +1,5 @@
+requests==2.25.1
+jsonlines==4.0.0
+tqdm==4.59.0
+pandas==1.2.4
+zhipuai==2.1.5.20230904
