@@ -1,3 +1,5 @@
+import os
+
 import requests
 from zhipuai import ZhipuAI
 
@@ -5,10 +7,13 @@ import glm_tools
 import net_request
 
 
+API_KEY = os.getenv("OPENAI_API_KEY")
+TEAM_TOKEN = ""
+
 def getanswer(comp_content):
     messages = [{"role": "user", "content": comp_content}]
 
-    client = ZhipuAI(api_key="")
+    client = ZhipuAI(api_key=API_KEY)
     tools = glm_tools.glmtools
 
     response = client.chat.completions.create(
@@ -114,7 +119,7 @@ def getanswer(comp_content):
         print("message_New")
         print(messages_new)
 
-        client_new = ZhipuAI(api_key="")
+        client_new = ZhipuAI(api_key=API_KEY)
 
         response_new = client_new.chat.completions.create(
             model="glm-4",  # 填写需要调用的模型名称
@@ -202,7 +207,7 @@ def getanswer(comp_content):
         print(passfunc)
         domain = "comm.chatglm.cn"
 
-        headers = {"Content-Type": "application/json", "Authorization": "Bearer "}
+        headers = {"Content-Type": "application/json", "Authorization": f"Bearer {TEAM_TOKEN}"}
 
         url = f"https://{domain}/law_api/s1_b/{func_name}"
         print(url)
