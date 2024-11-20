@@ -54,6 +54,6 @@
 
 如果您想参与贡献，请参考 [这里](assets/contribute_zh.md)
 
-我嗯感谢来自以下开发者的贡献：
+我们感谢来自以下开发者的贡献：
 
 [![lawglm contributors](https://contrib.rocks/image?repo=metaglm/lawglm&max=2000)](https://github.com/metaglm/lawglm/graphs/contributors)
