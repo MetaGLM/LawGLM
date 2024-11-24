@@ -1,13 +1,10 @@
 # LawGLM
 
-## 大赛介绍
-
-关于本次LawGLM比赛及开源项目的背景情况及台前幕后的故事，请参考文档```remain_true_to_our_original_open-source_aspiration_in_the_legal_industry.md```(
-这是一个关于开源的不忘初心的故事)。
-
 ## 仓库介绍
 
-本仓库是关于2024年琶洲算法大赛的开源代码汇总， 旨在探索大语言模型在法律行业的应用潜力。
+本仓库是关于2024年琶洲算法大赛的开源代码汇总， 旨在探索大语言模型在法律行业的应用潜力。 本仓库存放了数个比赛团队的竞赛原始代码，均经过整理并开源。
+
+> 关于本次LawGLM比赛及开源项目的背景情况及台前幕后的故事，请参考 [文档](remain_true_to_our_original_open-source_aspiration_in_the_legal_industry.md)。
 
 + 比赛链接和介绍: https://tianchi.aliyun.com/competition/entrance/532221
 + 技术： 参赛选手们使用了 Function Call，RAG，长文本等多项技术，让大模型在法律领域发挥了更大的作用。
@@ -16,6 +13,7 @@
 
 ## 项目更新
 
+- 🔥🔥 **News**: ```2024/11/30```: 我们将会公开视频教程，方便大家学习。
 - 🔥🔥 **News**: ```2024/10/20```: 我们整理开源了第一个参赛队伍的代码。并完成了项目的基础工作。
 
 ## 比赛规则
@@ -43,7 +41,8 @@
 + [Move_forward_every_da](Move_forward_every_day-lawGLM/README.md): 每天前进30公里团队的终版（复赛）方案。复赛成绩排名第15名。
 + [NickolasNi](NickolasNi-LawGLM/README.md): 由 NickolasNi 贡献，初赛方案。
 + [LegalHi](LegalHi-LawGLM/README.md): LegalHi 团队方案，通过意图分类，问题改写，思维链、结果判断、外反思等多个步骤，优秀完成任务。
-+ [](Buycabbage-semi-LawGLM)
++ [Buycabbage-semi](Buycabbage-semi-LawGLM): 基于GLM多智能体协同的法律行业问答系统，由买白菜不砍价提供的复赛解决方案。
+
 ## 开源协议
 
 本代码中无特殊说明或者无注名额外协议的，均使用 [Apache 2.0](LICENSE) 协议。
